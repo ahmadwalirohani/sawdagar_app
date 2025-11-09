@@ -1,0 +1,178 @@
+{
+  "news" : "اوونیزه",
+  "hurriyat weekly news":"هفته نامه ی حریت",
+
+    "gallery" : "گالری",
+    "analysis" : "تجزیه و تحلیل",
+    "programs" : " برنامه ها",
+    "articles" : "مقاله ها",
+    "Hurriyat Live Radio" : "Hurriyat Live Radio",
+    "home": "خانه",
+    "videos": "فیلم‌ها",
+    "categories" : "طبقه بندی",
+    "live radio": " رادیو بطور زنده",
+    "Afghanistan" : "افغانستان",
+    "Asia" : "آسیا",
+    "World" : "جهان",
+    "Politics" : "سیاست",
+    "Health" : "صحت",
+    "Development" : "پیشرفت",
+    "Business" : "تجارت",
+    "Technology" : "تکنالوژی",
+    "Sport" : "ورزش",
+    "Last Two Decades" : "دو دهه اخیر",
+    "Islam and Culture" : "اسلام و فرهنگ",
+
+    "welcome to" : "خوش آمدید به ",
+    "sign in to continue": "",
+    "skip": "صرف نظر",
+    "done": "انجام شد",
+
+    "intro-title1" : "اخبار",
+    "intro-title2" : "گزارشات",
+    "intro-title3" : "برنامه های زنده",
+    "intro-description1" : "آخرین اخبار افغانستان،منطقه و جهان",
+    "intro-description2" : "خبری، تحقیقی و مستند",
+    "intro-description3" : "سیاسی، اقتصادی، اجتماعی، صحی و تعلیمی",
+    "get started" : "آغاز کردن",
+    "don't have social accounts?" : "Don't have social accounts?",
+    "continue with email >>" : "Continue with Email >>",
+
+    "sign up": "Sign Up",
+    "sign in": "Sign In",
+    "follow the simple steps": "Follow the simple steps",
+    "name": "نام",
+    "already have an account?": "Already have an account?",
+    "forgot password?": "Forgot Password?",
+    "reset your password": "Reset Your Password",
+    "submit": "Submit",
+    "sign in successful!" : "Sign In Successful!",
+    "sign up successful!": "Sign up successful!",
+    "don't have an account?" : "Don't have an account?",
+
+
+
+    "search news" : "جستجوی خبر",
+    "popular news" : "مشهورترین خبر‌ها",
+    "recent news" : "آخرین خبر",
+    "explore": "مهم‌ترین‌ها",
+    "featured": "",
+    "view all" : "مشاهده همه",
+
+    "video articles" : "گزارش‌های تصویری",
+    "most recent": "آخرین",
+    "most popular": "مشهورترین‌ها",
+    "no categories found": "موردی دریافت نشد", 
+
+    
+
+
+
+    "people like this" : "پسندیده شده‌ها",
+    "you might also like" : "شاید این نیز مورد پسند تان باشد",
+    "no articles found" : "گزارشی دریافت نشد",
+
+
+    
+    "no internet" : "انترنت موجودنیست!",
+    "no comments found" : "نظری دریافت نه‌شد",
+    "be the first to comment" : "Be the first to comment",
+
+
+    "recent searchs" : "آخرین جستجو",
+    "search-description" :  "تا کنون جستجوی صورت نگرفته",
+    "we have found" : "دریافت شد",
+    "try again" : "دوباره تلاش نمایید!",
+
+
+
+
+    "bookmarks" : "Bookmarks",
+    "sign in first" : "Sign In First",
+    "sign in to save your favourite articles here" : "Sign in to save your favourite articles here",
+    "save your favourite articles here" : "Save your favourite articles here",
+
+
+
+
+    "check your internet connection!" : "ارتباط با شبکه را بازیابی کنید",
+    "something is wrong. please try again." : "اشتباه صورت گرفت لطفا دوباره تلاش نمایید",
+    "error fb login" : "Error with facebook login! Please try with google",
+
+
+    
+    "cancel" : "لغو",
+    "no sign in title" : "Sign in first to access this feature",
+    "no sign in subtitle" : "You haven't signed in yet. Please sign in to unlock this feature",
+
+    
+    
+    "comments" : "Comments",
+    "write a comment" : "Write A Comment", 
+
+
+    
+    "no content" : "موردی یافت نشد",
+    "flag this comment" : "Flag this comment",
+    "unflag this comment" : "Unflag this comment",
+    "report" : "گزارش‌",
+    "delete" : "حذف",
+    "report-info" : "Your report has been sent succesfully to the admins",
+    "report-info1" : "Thanks for your report. We will reponse within 24 hours.",
+    "report-guest" : "Sign In is Required!",
+    "report-guest1" : "You have to sign in to report about any comments",
+    "comment flagged" : "This comment has been flagged!",
+
+
+    "notifications" : "Notifications",
+    "notification details" : "Notification Details",
+
+
+    
+    "general settings" : "تنظیمات عمومی",
+    "dark mode" : "وضعیت تاریک",
+    "light mode" : "وضعیت روشن",
+    "login" : "داخل شدن",
+    "get notifications" : "Get Notifications",
+    "contact us" : "تماس با ما",
+    "rate this app" : "Rate this app",
+    "licence" : "Licence",
+    "privacy policy" : "Privacy Policy",
+    "about us" : "در باره ما",
+    "logout" : "خارج شدن",
+    "edit profile" : "Edit Profile",
+    "update profile" : "Update Profile",
+    "updated successfully" : "Updated Successfully",
+    "enter new name" : "Enter new name",
+
+    "logout title" : "Do you really want to logout from the app?",
+    "yes" : "Yes",
+    "no" : "No",
+
+    "language" : "زبان",
+    "select language" : "انتخاب زبان",
+
+    "buy now" : "Purchase this app",
+    "buy now subtitle" : "Buy the full source code here",
+
+    
+    "facebook page" : "صفحه فیسبوک",
+    "youtube channel" : "کانال یوتیوب",
+    "twitter": "ایکس",
+    "views": "دیدنی ها",
+
+
+    "clear-all" : "از بین بردن همه",
+    "clear-all-notification-dialog": "Do you want to clear all the notification data?",
+    "no-notification-title": "No notifications found!",
+    "no-notification-description" : "You haven't received any notifications yet. Make sure you have turned on the notifications from the settings.",
+    "security": "Security",
+    "delete-user-data": "Delete My Data & Account",
+    "account-delete-title": "Do you really want to delete your data?",
+    "account-delete-subtitle": "Your account information like profile data, bookmarks, etc will be erased from the app database and You will have to sign up again in the app to continue.",
+    "account-delete-confirm": "Yes, Delete My Account"
+
+
+
+
+}
