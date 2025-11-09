@@ -1,0 +1,56 @@
+workflows:
+  ios-release:
+    name: iOS Release Build
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Set up iOS deployment target
+        script: |
+          echo "🔧 Setting iOS deployment target to 14.0"
+          cd ios
+          # Ensure Podfile exists and has platform line
+          if grep -q "platform :ios" Podfile; then
+            sed -i '' 's/platform :ios.*/platform :ios, "14.0"/' Podfile
+          else
+            echo "platform :ios, '14.0'" | cat - Podfile > temp && mv temp Podfile
+          fi
+
+          # Append post_install block to force all pods to use iOS 14.0
+          if ! grep -q "post_install do" Podfile; then
+            cat << 'EOF' >> Podfile
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+    end
+  end
+end
+EOF
+          fi
+
+          rm -f Podfile.lock
+          pod repo update
+          pod install
+          cd ..
+
+      - name: Flutter clean and pub get
+        script: |
+          flutter clean
+          flutter pub get
+
+      - name: Build iOS
+        script: |
+          flutter build ios --release --no-codesign
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/iphoneos/*.app
+      - flutter_drive.log
+
+    publishing:
+      email:
+        recipients:
+          - your@email.com
