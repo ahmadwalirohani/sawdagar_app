@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'package:afghan_bazar/models/chat_session_model.dart';
+import 'package:afghan_bazar/pages/chat_messaging_page.dart';
+import 'package:afghan_bazar/pages/chat_page.dart';
 import 'package:afghan_bazar/pages/my_orders_page.dart';
 import 'package:afghan_bazar/blocs/product_related_ads_bloc.dart';
 import 'package:afghan_bazar/pages/seller_info_page.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:afghan_bazar/widgets/product_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:afghan_bazar/widgets/report_ads_dialog.dart';
@@ -578,6 +582,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
       bottomNavigationBar: BottomButtons(
         productAdId: product.id,
+        productCreaterId: product.userId,
         productPrice: product.price,
       ),
     );
@@ -585,21 +590,28 @@ class _ProductDetailsState extends State<ProductDetails> {
 }
 
 class BottomButtons extends StatefulWidget {
-  int? productAdId;
-  String productPrice;
+  final int? productAdId;
+  final int? productCreaterId;
+  final String productPrice;
 
-  BottomButtons({super.key, this.productAdId, this.productPrice = '0'});
+  const BottomButtons({
+    super.key,
+    this.productAdId,
+    this.productPrice = '0',
+    this.productCreaterId,
+  });
 
   @override
   _BottomButtonsState createState() => _BottomButtonsState();
 }
 
 class _BottomButtonsState extends State<BottomButtons> {
-  bool _isLoading = false; // Manage loading state
+  bool _isOrderLoading = false;
+  bool _isChatLoading = false;
 
-  void _submit() async {
+  void _onOrderSubmit() async {
     setState(() {
-      _isLoading = true;
+      _isOrderLoading = true;
     });
 
     try {
@@ -613,24 +625,121 @@ class _BottomButtonsState extends State<BottomButtons> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // short delay so user sees success banner
         await Future.delayed(const Duration(seconds: 2));
 
         if (!mounted) return;
 
-        // navigate & remove this page from stack
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => MyOrdersPage()),
         );
       } else {
         print(response.body);
+        _showErrorSnackBar('Failed to create order');
       }
     } catch (e) {
       print(e);
+      _showErrorSnackBar('Error creating order');
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() => _isOrderLoading = false);
     }
+  }
+
+  void _onChatSubmit() async {
+    setState(() {
+      _isChatLoading = true;
+    });
+
+    try {
+      final response = await AuthService().authPost(
+        "chat-session/create",
+        body: jsonEncode({
+          'ad_id': widget.productAdId,
+          "reciver_id": widget.productCreaterId,
+          "type": 'buyer',
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = json.decode(response.body);
+        final chatSession = ChatSessionModel.fromJson(responseData);
+
+        await _initializeFirebaseSession(chatSession);
+
+        if (!mounted) return;
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatMessagingPage(chatSession: chatSession),
+          ),
+        );
+      } else {
+        print('Failed to create chat session: ${response.body}');
+        _showErrorSnackBar('Failed to start chat');
+      }
+    } catch (e) {
+      print('Error creating chat session: $e');
+      _showErrorSnackBar('Error starting chat');
+    } finally {
+      if (mounted) setState(() => _isChatLoading = false);
+    }
+  }
+
+  Future<void> _initializeFirebaseSession(ChatSessionModel chatSession) async {
+    try {
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final sessionId = chatSession.sessionId ?? 'chat_${chatSession.chatId}';
+
+      final roomDoc = await firestore
+          .collection('chatSessions')
+          .doc(sessionId)
+          .get();
+
+      if (!roomDoc.exists) {
+        final currentUser = AuthService.getCurrentUser;
+
+        await firestore.collection('chatSessions').doc(sessionId).set({
+          'chatId': chatSession.chatId,
+          'sessionId': sessionId,
+          'sessionToken': chatSession.sessionToken,
+          'type': chatSession.type,
+          'participants': {
+            currentUser?.id.toString(): {
+              'name': currentUser?.name,
+              'avatar': currentUser?.image,
+            },
+            chatSession.partnerId.toString(): {
+              'name': chatSession.partnerName,
+              'email': chatSession.partnerEmail,
+              'avatar': chatSession.partnerAvatar,
+            },
+          },
+          'adInfo': {
+            'adId': chatSession.adId,
+            'adTitle': chatSession.adTitle,
+            'adPrice': chatSession.adPrice,
+            'adPhoto': chatSession.adPhoto,
+          },
+          'createdAt': DateTime.now().millisecondsSinceEpoch,
+          'lastMessage': null,
+          'lastUpdated': DateTime.now().millisecondsSinceEpoch,
+        });
+      }
+    } catch (e) {
+      print('Error initializing Firebase session: $e');
+      // Continue anyway - Firebase session might initialize later
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -643,10 +752,13 @@ class _BottomButtonsState extends State<BottomButtons> {
       ),
       child: Row(
         children: [
-          // Call Button (Outlined)
+          // Call Button
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                // Implement call functionality
+                _showCallOptions();
+              },
               icon: const Icon(
                 Icons.phone_outlined,
                 color: Colors.black87,
@@ -668,26 +780,35 @@ class _BottomButtonsState extends State<BottomButtons> {
 
           const SizedBox(width: 12),
 
-          // Chat Button (Filled)
+          // Chat Button
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.chat_bubble_outline,
-                color: Colors.white,
-                size: 15,
-              ),
-              label: const Text(
-                "Chat",
-                style: TextStyle(fontSize: 13, color: Colors.white),
-              ),
+              onPressed: _isChatLoading ? null : _onChatSubmit,
+              icon: _isChatLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.chat_bubble_outline,
+                      color: Colors.white,
+                      size: 15,
+                    ),
+              label: _isChatLoading
+                  ? const Text(
+                      "Loading...",
+                      style: TextStyle(fontSize: 13, color: Colors.white),
+                    )
+                  : const Text(
+                      "Chat",
+                      style: TextStyle(fontSize: 13, color: Colors.white),
+                    ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(
-                  255,
-                  4,
-                  24,
-                  35,
-                ), // Dark green
+                backgroundColor: const Color.fromARGB(255, 4, 24, 35),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4),
                 ),
@@ -695,12 +816,15 @@ class _BottomButtonsState extends State<BottomButtons> {
               ),
             ),
           ),
+
           const SizedBox(width: 12),
+
+          // Order Button
           Expanded(
             child: SizedBox(
               child: ElevatedButton.icon(
-                onPressed: _isLoading ? null : _submit,
-                icon: _isLoading
+                onPressed: _isOrderLoading ? null : _onOrderSubmit,
+                icon: _isOrderLoading
                     ? const SizedBox(
                         width: 18,
                         height: 18,
@@ -714,7 +838,7 @@ class _BottomButtonsState extends State<BottomButtons> {
                         color: Colors.white,
                         size: 15,
                       ),
-                label: _isLoading
+                label: _isOrderLoading
                     ? const Text(
                         "Loading...",
                         style: TextStyle(fontSize: 13, color: Colors.white),
@@ -735,6 +859,36 @@ class _BottomButtonsState extends State<BottomButtons> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showCallOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.phone),
+                title: const Text('Call Seller'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Implement phone call
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.message),
+                title: const Text('Send SMS'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Implement SMS
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -785,6 +939,7 @@ class _ImageZoomScreenState extends State<ImageZoomScreen> {
             },
             itemCount: widget.images.length,
             itemBuilder: (context, index) {
+              print("$baseHost/${widget.images[index]}");
               return GestureDetector(
                 onDoubleTap: () {
                   // Optional: Add zoom functionality here

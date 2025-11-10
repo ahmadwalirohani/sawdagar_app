@@ -1,9 +1,14 @@
+import 'dart:convert';
+
+import 'package:afghan_bazar/pages/account_profile_page.dart';
 import 'package:afghan_bazar/pages/home.dart';
+import 'package:afghan_bazar/pages/setting_page.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -102,6 +107,8 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
   bool hideFromFriends = false;
   bool availableForPickup = true;
   bool availableForDelivery = false;
+  bool isEmailVerified = false;
+  bool isPhoneVerified = false;
 
   final picker = ImagePicker();
 
@@ -279,6 +286,23 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
     if (chosen != null) setState(() => category = chosen);
   }
 
+  Future<void> _loadUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    var userInfo = json.decode(prefs.getString('user_info') ?? '');
+
+    setState(() {
+      if (userInfo['email_verified_at'] != null) {
+        isEmailVerified = true;
+      } else {
+        isEmailVerified = false;
+      }
+      if (userInfo['phone_verified_at'] != null) {
+        isPhoneVerified = true;
+      } else {
+        isPhoneVerified = false;
+      }
+    });
+  }
   /* -------------------------- Form Submit --------------------------- */
 
   bool _isSubmitting = false;
@@ -454,9 +478,37 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
 
   /* ---------------------------- UI ---------------------------- */
 
+  Widget _blockedPage(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Verification Required")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.lock, size: 70, color: Colors.red),
+            const SizedBox(height: 16),
+            const Text("Please verify your phone & email before posting."),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserSettingsPage()),
+              ),
+              child: const Text("Verify Account"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (!isPhoneVerified || !isEmailVerified) {
+      return _blockedPage(context);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -782,52 +834,6 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
           ],
         ),
       ),
-      // bottomNavigationBar: SafeArea(
-      //   minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      //   child: SizedBox(
-      //     height: 48,
-      //     child: SizedBox(
-      //       width: double.infinity,
-      //       child: ElevatedButton(
-      //         style: ElevatedButton.styleFrom(
-      //           backgroundColor: Colors.deepPurple,
-      //           padding: const EdgeInsets.symmetric(vertical: 14),
-      //           shape: RoundedRectangleBorder(
-      //             borderRadius: BorderRadius.circular(12),
-      //           ),
-      //           elevation: 6,
-      //         ),
-      //         onPressed: _isSubmitting ? null : _submit,
-      //         child: _isSubmitting
-      //             ? Row(
-      //                 mainAxisAlignment: MainAxisAlignment.center,
-      //                 children: const [
-      //                   SizedBox(
-      //                     width: 22,
-      //                     height: 22,
-      //                     child: CircularProgressIndicator(
-      //                       strokeWidth: 2,
-      //                       color: Colors.white,
-      //                     ),
-      //                   ),
-      //                   SizedBox(width: 12),
-      //                   Text(
-      //                     "Submitting...",
-      //                     style: TextStyle(fontSize: 16, color: Colors.white),
-      //                   ),
-      //                 ],
-      //               )
-      //             : const Text(
-      //                 "🚀 Post Your Ad",
-      //                 style: TextStyle(
-      //                   fontSize: 16,
-      //                   fontWeight: FontWeight.bold,
-      //                 ),
-      //               ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
     );
   }
 }

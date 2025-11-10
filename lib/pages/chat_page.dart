@@ -1,278 +1,267 @@
-import 'package:afghan_bazar/pages/chat_messaging_page.dart';
+import 'package:afghan_bazar/blocs/chat_sessions_bloc.dart';
+import 'package:afghan_bazar/models/chat_session_model.dart';
+import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:afghan_bazar/pages/chat_messaging_page.dart';
+import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
   @override
-  _ChatPageState createState() => _ChatPageState();
+  State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage>
-    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
-  var scaffoldKey = GlobalKey<ScaffoldState>();
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  String basehost = AuthService.baseHost;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
 
-    Future.delayed(Duration(milliseconds: 0)).then((value) {
-      // context.read<FeaturedBloc>().getData(context.locale);
-      // context.read<PopularBloc>().getData(context.locale);
-      // context.read<RecentBloc>().getData(mounted);
+    final bloc = context.read<ChatSessionsBloc>();
+    bloc.getData(null);
+
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) return;
+      switch (_tabController.index) {
+        case 0:
+          bloc.getData(null); // All
+          break;
+        case 1:
+          bloc.getData('buyer');
+          break;
+        case 2:
+          bloc.getData('seller');
+          break;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    final bloc = context.watch<ChatSessionsBloc>();
+    var items = bloc.getchats();
 
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: const Text('Chats', style: TextStyle(color: Colors.black)),
-          bottom: const TabBar(
-            labelColor: Color(0xFFFF9900),
-            unselectedLabelColor: Colors.black54,
-            indicatorColor: Color(0xFFFF9900),
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
-            tabs: [
-              Tab(text: 'All'),
-              Tab(text: 'Buying'),
-              Tab(text: 'Selling'),
-            ],
-          ),
-        ),
-        body: Column(
-          children: [
-            // // Filter chips
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            //   child: Wrap(
-            //     spacing: 10,
-            //     children: const [
-            //       FilterChipWidget(label: "All", selected: true),
-            //       FilterChipWidget(label: "Unread Chats"),
-            //       FilterChipWidget(label: "Favourites"),
-            //     ],
-            //   ),
-            // ),
-
-            // // Notification banner
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 12),
-            //   child: Card(
-            //     color: const Color(0xFFFFFAE5),
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(8),
-            //     ),
-            //     child: ListTile(
-            //       contentPadding: const EdgeInsets.all(12),
-            //       leading: const Icon(
-            //         Icons.notifications_off,
-            //         color: Colors.amber,
-            //       ),
-            //       title: const Text(
-            //         'Missing Important Updates?',
-            //         style: TextStyle(fontWeight: FontWeight.bold),
-            //       ),
-            //       subtitle: const Text(
-            //         'Push notifications are off. Turn on notifications and never miss an update.',
-            //       ),
-            //       trailing: GestureDetector(
-            //         onTap: () {},
-            //         child: const Icon(Icons.close),
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            const SizedBox(height: 10),
-
-            // Tab views
-            Expanded(
-              child: TabBarView(
-                children: [
-                  ChatListTab(tabType: 'all'),
-                  ChatListTab(tabType: 'buying'),
-                  ChatListTab(tabType: 'selling'),
-                ],
-              ),
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Chats", style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 1,
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: const Color(0xFFFF9900),
+          unselectedLabelColor: Colors.black54,
+          indicatorColor: const Color(0xFFFF9900),
+          tabs: const [
+            Tab(text: "All"),
+            Tab(text: "Buying"),
+            Tab(text: "Selling"),
           ],
         ),
-
-        // Bottom navigation
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildChatList(items, "No chats yet."),
+          _buildChatList(items, "No buying chats."),
+          _buildChatList(items, "No selling chats."),
+        ],
       ),
     );
   }
 
-  @override
-  bool get wantKeepAlive => true;
-}
-
-class ChatListTab extends StatelessWidget {
-  final String tabType;
-
-  const ChatListTab({Key? key, required this.tabType}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Simulate different data for each tab
-    final chatItems = <Map<String, String>>[
-      {
-        'user': 'User 73A4mH',
-        'title': 'Suzuki Alto 2008',
-        'msg': 'Is the price firm?',
-        'time': '10:42',
-        'avatar': 'https://i.pravatar.cc/300',
-        'userImg': 'https://i.pravatar.cc/300',
-        'type': 'buying',
-      },
-      {
-        'user': 'User 53B9kL',
-        'title': 'MacBook Pro 2021',
-        'msg': 'Still available?',
-        'time': '09:10',
-        'avatar': 'https://i.pravatar.cc/300',
-        'userImg': 'https://i.pravatar.cc/300',
-        'type': 'selling',
-      },
-    ];
-
-    final filtered = tabType == 'all'
-        ? chatItems
-        : chatItems.where((e) => e['type'] == tabType).toList();
-
-    if (filtered.isEmpty) {
-      return const Center(child: Text('No chats yet.'));
+  Widget _buildChatList(List<ChatSessionModel> chats, String emptyMsg) {
+    if (chats.isEmpty) {
+      return _emptyPage(emptyMsg);
     }
 
     return ListView.builder(
-      itemCount: filtered.length,
+      padding: const EdgeInsets.all(8),
+      itemCount: chats.length,
       itemBuilder: (context, index) {
-        final chat = filtered[index];
-        return ChatListItem(
-          userName: chat['user']!,
-          adTitle: chat['title']!,
-          message: chat['msg']!,
-          time: chat['time']!,
-          avatarUrl: chat['avatar']!,
-          userImage: chat['userImg']!,
-        );
+        final chat = chats[index];
+        return _chatCard(chat);
       },
     );
   }
-}
 
-class FilterChipWidget extends StatelessWidget {
-  final String label;
-  final bool selected;
+  Widget _chatCard(ChatSessionModel chat) {
+    final bloc = context.read<ChatSessionsBloc>();
 
-  const FilterChipWidget({Key? key, required this.label, this.selected = false})
-    : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FilterChip(
-      selected: selected,
-      label: Text(label),
-      onSelected: (_) {},
-      selectedColor: const Color.fromARGB(38, 255, 153, 0),
-      backgroundColor: Colors.grey.shade200,
-      labelStyle: TextStyle(
-        color: selected
-            ? const Color.fromARGB(255, 4, 24, 35)
-            : const Color.fromARGB(255, 4, 24, 35),
-        fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-      ),
-      side: BorderSide.none,
-    );
-  }
-}
-
-class ChatListItem extends StatelessWidget {
-  final String userName;
-  final String adTitle;
-  final String message;
-  final String time;
-  final String avatarUrl; // Square item image
-  final String userImage; // Small circle seller image
-
-  const ChatListItem({
-    Key? key,
-    required this.userName,
-    required this.adTitle,
-    required this.message,
-    required this.time,
-    required this.avatarUrl,
-    required this.userImage,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 1,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
           onTap: () {
+            // Mark as read when opening chat
+            bloc.markMessagesAsRead(chat);
+
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ChatMessagingPage()),
+              MaterialPageRoute(
+                builder: (context) => ChatMessagingPage(chatSession: chat),
+              ),
             );
           },
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
-          leading: Stack(
-            children: [
-              // Square item image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  avatarUrl,
-                  width: 52,
-                  height: 52,
-                  fit: BoxFit.cover,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Chat image + user avatar overlay
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        "${basehost}/${chat.adPhoto}",
+                        width: 55,
+                        height: 55,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 55,
+                            height: 55,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.image, color: Colors.grey),
+                          );
+                        },
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.white,
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundImage: NetworkImage(
+                            "${basehost}/${chat.partnerAvatar}",
+                          ),
+                          onBackgroundImageError: (exception, stackTrace) {
+                            // Handle image error
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              // Seller circular image at bottom right
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: CircleAvatar(
-                  radius: 12,
-                  backgroundColor: Colors.white,
-                  child: CircleAvatar(
-                    radius: 10,
-                    backgroundImage: NetworkImage(userImage),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        chat.partnerName!,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        chat.adTitle!,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      // Real-time last message from Firebase
+                      StreamBuilder<Map<String, dynamic>?>(
+                        stream: bloc.getLastMessageStream(chat),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data != null) {
+                            final lastMessage = snapshot.data!;
+                            return Text(
+                              lastMessage['content'] ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            );
+                          }
+                          return const SizedBox();
+                        },
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
-          title: Text(
-            userName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                adTitle,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(message),
-            ],
-          ),
-          trailing: Text(
-            time,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
+                const SizedBox(width: 8),
+                Column(
+                  children: [
+                    Text(
+                      _formatTime(chat.createdAt),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    const SizedBox(height: 4),
+                    // Real-time unread count badge
+                    StreamBuilder<int>(
+                      stream: bloc.getUnreadCountStream(chat),
+                      builder: (context, snapshot) {
+                        final unreadCount = snapshot.data ?? 0;
+                        if (unreadCount > 0) {
+                          return Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFF9900),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              unreadCount > 9 ? '9+' : unreadCount.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
-      ],
+      ),
+    );
+  }
+
+  String _formatTime(String createdAt) {
+    try {
+      final dateTime = DateTime.parse(createdAt);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays > 0) {
+        return '${difference.inDays}d';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours}h';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes}m';
+      } else {
+        return 'Now';
+      }
+    } catch (e) {
+      return '';
+    }
+  }
+
+  Widget _emptyPage(String msg) {
+    return Center(
+      child: Text(
+        msg,
+        style: const TextStyle(color: Colors.grey, fontSize: 16),
+      ),
     );
   }
 }

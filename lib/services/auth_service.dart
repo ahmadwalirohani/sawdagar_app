@@ -1,10 +1,29 @@
+import 'package:afghan_bazar/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AuthService {
-  static const String baseUrl = "http://10.0.2.2:8000/api";
-  static const String baseHost = "http://10.0.2.2:8000";
+  static const String baseUrl =
+      "https://sawdagar-api-serverv01-main-uyjtdt.laravel.cloud/api";
+  static const String baseHost =
+      "https://sawdagar-api-serverv01-main-uyjtdt.laravel.cloud";
+
+  static UserModel? _currentUser;
+
+  /// Load user once (call this during app startup)
+  static Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString("user_info");
+
+    if (jsonString != null && jsonString.isNotEmpty) {
+      final data = jsonDecode(jsonString);
+      _currentUser = UserModel.fromJson(data);
+    }
+  }
+
+  /// Sync getter – PURE UserModel (no Future)
+  static UserModel? get getCurrentUser => _currentUser;
 
   /// Save tokens
   static Future<void> saveTokens(
@@ -25,7 +44,6 @@ class AuthService {
   /// Get refresh token
   static Future<String?> getRefreshToken() async {
     final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString("refresh_token"));
     return prefs.getString("refresh_token");
   }
 

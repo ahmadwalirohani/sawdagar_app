@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:afghan_bazar/blocs/my_orders_bloc.dart';
 import 'package:afghan_bazar/collections/product_ads_collection.dart';
 import 'package:afghan_bazar/models/order_model.dart';
-import 'package:afghan_bazar/models/product_ads_model.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:afghan_bazar/widgets/product_details.dart';
 import 'package:flutter/material.dart';
@@ -19,29 +18,6 @@ class MyOrdersPage extends StatefulWidget {
 class _MyOrdersPageState extends State<MyOrdersPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  // List of orders (simulating dynamic data)
-  List<Order> orders = [
-    Order(
-      orderNo: "105312",
-      date: "Aug 30, 2025",
-      productName: "SEGO Magic Power | Smart Camera | Bluetooth",
-      price: "Af 3,399",
-      qty: 1,
-      total: "Af 3,498",
-      status: "Processing",
-    ),
-    Order(
-      orderNo: "105311",
-      date: "Aug 30, 2025",
-      productName: "SEGO Magic Power | Smart Camera | Bluetooth",
-      price: "Af 3,399",
-      qty: 1,
-      total: "Af 3,498",
-      status: "Paid",
-    ),
-    // Add more orders here if needed
-  ];
 
   @override
   void initState() {

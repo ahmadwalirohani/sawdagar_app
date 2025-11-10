@@ -72,6 +72,8 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
 
           prefs.setString('user_info', response.body);
 
+          print(response.body);
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Profile image updated successfully!'),
@@ -114,6 +116,30 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
           setDialogState(() {});
         }
       });
+    }
+
+    void sendConfirmationCode() async {
+      try {
+        final response = await AuthService().authPost(
+          "verify-email",
+          body: jsonEncode({'email': userEmail, 'code': codeController.text}),
+        );
+        if (response.statusCode == 201) {
+          setState(() => isEmailVerified = true);
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Email verified successfully!')),
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Invalid code!')));
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
 
     Future<void> sendVerificationRequest(Function setDialogState) async {
@@ -193,21 +219,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          if (codeController.text == '123456') {
-                            setState(() => isEmailVerified = true);
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Email verified successfully!'),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Invalid code!')),
-                            );
-                          }
-                        },
+                        onPressed: () => sendConfirmationCode,
                         child: const Text('Confirm'),
                       ),
                     ],
@@ -364,6 +376,13 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
       }
       userEmail = userInfo['email'];
 
+      if (userInfo['phone_verified_at'] != null) {
+        isPhoneVerified = true;
+      } else {
+        isPhoneVerified = false;
+      }
+      userPhone = userInfo['phone'];
+      print("${AuthService.baseHost}${userInfo['image']}");
       defaultProfileImage = "${AuthService.baseHost}${userInfo['image']}";
     });
   }

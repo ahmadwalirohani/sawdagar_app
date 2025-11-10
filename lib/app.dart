@@ -1,3 +1,4 @@
+import 'package:afghan_bazar/blocs/chat_sessions_bloc.dart';
 import 'package:afghan_bazar/blocs/favorites_ads_bloc.dart';
 import 'package:afghan_bazar/blocs/my_ads_bloc.dart';
 import 'package:afghan_bazar/blocs/my_orders_bloc.dart';
@@ -43,8 +44,8 @@ class MyApp extends StatelessWidget {
               // ChangeNotifierProvider<BookmarkBloc>(
               //   create: (context) => BookmarkBloc(),
               // ),
-              ChangeNotifierProvider<SearchBloc>(
-                create: (context) => SearchBloc(),
+              ChangeNotifierProvider<ChatSessionsBloc>(
+                create: (context) => ChatSessionsBloc(),
               ),
               ChangeNotifierProvider<FeaturedBloc>(
                 create: (context) => FeaturedBloc(),
@@ -93,6 +94,7 @@ class MyApp extends StatelessWidget {
                 create: (context) => WeeklyBloc(),
               ),
             ],
+
             child: MaterialApp(
               supportedLocales: [
                 Locale('en'),
