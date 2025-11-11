@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1039935783939",
+    "project_id": "sawdagar-app",
+    "storage_bucket": "sawdagar-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039935783939:android:9eda0b5935d0aeeea9fa36",
+        "android_client_info": {
+          "package_name": "com.ahmadwali.afghan_bazar.afghan_bazar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuFMGXZJ7W6mfcGG-K6rWle8iW6UA-PdQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
