@@ -6,7 +6,6 @@ import 'package:afghan_bazar/models/category.dart';
 import 'package:afghan_bazar/utils/cached_image_with_dark.dart';
 import 'package:afghan_bazar/utils/empty.dart';
 import 'package:afghan_bazar/utils/loading_cards.dart';
-import 'package:afghan_bazar/utils/next_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 

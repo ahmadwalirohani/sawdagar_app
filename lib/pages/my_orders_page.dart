@@ -118,7 +118,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       itemBuilder: (context, index) {
         final order = items[index]; // Get the current order
         String imageUrl = order.adPhotos?.isNotEmpty == true
-            ? "${AuthService.baseHost}/${order.adPhotos![0]}"
+            ? "${order.adPhotos![0]}"
             : 'https://via.placeholder.com/150';
 
         return _orderCard(

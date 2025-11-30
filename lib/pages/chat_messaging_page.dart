@@ -56,16 +56,14 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
     _me = types.User(
       id: currentUser?.id.toString() ?? '',
       firstName: currentUser?.name,
-      imageUrl: currentUser?.image != null
-          ? '$basehost/${currentUser?.image}'
-          : null,
+      imageUrl: currentUser?.image != null ? '${currentUser?.image}' : null,
     );
 
     _other = types.User(
       id: widget.chatSession.partnerId.toString(),
       firstName: widget.chatSession.partnerName ?? 'User',
       imageUrl: widget.chatSession.partnerAvatar != null
-          ? '$basehost/${widget.chatSession.partnerAvatar}'
+          ? '${widget.chatSession.partnerAvatar}'
           : null,
     );
   }
@@ -565,7 +563,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
                           widget.chatSession.adPhoto != null
-                              ? '$basehost/${widget.chatSession.adPhoto}'
+                              ? '${widget.chatSession.adPhoto}'
                               : 'https://i.pravatar.cc/300',
                           height: 50,
                           width: 50,

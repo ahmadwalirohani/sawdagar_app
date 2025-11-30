@@ -234,7 +234,7 @@ class _ItemsCardState extends State<ItemsCard> {
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
                           (ad.photos?.isNotEmpty ?? false)
-                              ? "$baseHost/${ad.photos!.first}"
+                              ? "${ad.photos!.first}"
                               : "https://via.placeholder.com/100",
                           width: 100,
                           height: 100,

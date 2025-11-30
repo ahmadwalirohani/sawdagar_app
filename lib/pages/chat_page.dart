@@ -122,7 +122,7 @@ class _ChatPageState extends State<ChatPage>
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        "${basehost}/${chat.adPhoto}",
+                        "${chat.adPhoto}",
                         width: 55,
                         height: 55,
                         fit: BoxFit.cover,
@@ -145,7 +145,7 @@ class _ChatPageState extends State<ChatPage>
                         child: CircleAvatar(
                           radius: 10,
                           backgroundImage: NetworkImage(
-                            "${basehost}/${chat.partnerAvatar}",
+                            "${chat.partnerAvatar}",
                           ),
                           onBackgroundImageError: (exception, stackTrace) {
                             // Handle image error

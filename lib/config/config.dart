@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Config {
-  final String appName = 'Afghan Bazaar';
+  final String appName = 'Sawdagar';
   final String splashIcon = 'assets/images/splash.png';
   final String supportEmail = '';
   final String privacyPolicyUrl = '';
@@ -14,7 +14,7 @@ class Config {
   static const String twitterUrl = '';
 
   //app theme color
-  final Color appColor = const Color(0xFFFF9900);
+  final Color appColor = const Color.fromARGB(255, 255, 194, 32);
 
   //Intro images
   final String introImage1 = 'assets/images/slide1.png';
@@ -25,7 +25,7 @@ class Config {
   final String doneAsset = 'assets/animation_files/done.json';
 
   //Language Setup
-  final List<String> languages = ['English', 'Pashto', 'Arabic', 'Dari'];
+  final List<String> languages = ['English', 'Pashto', 'Dari'];
 
   //initial categories - 4 only (Hard Coded : which are added already on your admin panel)
   final List initialCategories = [

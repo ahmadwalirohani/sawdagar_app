@@ -24,7 +24,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Default image (fallback) in case product.photos is empty or null
     String imageUrl = product.photos?.isNotEmpty == true
-        ? "${AuthService.baseHost}/${product.photos![0]}"
+        ? product.photos![0]
         : 'https://via.placeholder.com/150';
 
     // Format price

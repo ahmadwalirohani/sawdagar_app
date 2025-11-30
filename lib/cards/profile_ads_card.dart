@@ -14,7 +14,7 @@ class ProfileAdCard extends StatelessWidget {
     // Fallback to first image if exists or a placeholder image
     String baseHost = AuthService.baseHost;
     String imageUrl = adModel.photos?.isNotEmpty == true
-        ? "$baseHost/${adModel.photos![0]}"
+        ? "${adModel.photos![0]}"
         : "https://via.placeholder.com/150";
 
     return InkWell(
@@ -74,6 +74,13 @@ class ProfileAdCard extends StatelessWidget {
                           height: 110,
                           width: double.infinity,
                           fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: const Color(0xFFE9ECEF),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.image_not_supported_outlined,
+                            ),
+                          ),
                         ),
                       ),
                     ],

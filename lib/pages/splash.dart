@@ -16,15 +16,15 @@ class _SplashPageState extends State<SplashPage> {
   afterSplash() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isFirstLaunch = prefs.getBool('isFirstLaunch');
-    print(isFirstLaunch);
     //  final SignInBloc sb = context.read<SignInBloc>();
     Future.delayed(Duration(milliseconds: 1500)).then((value) async {
       await prefs.setBool('isFirstLaunch', false);
-      if (isFirstLaunch == null || isFirstLaunch) {
-        gotoIntroPage();
-      } else {
-        gotoHomePage();
-      }
+      gotoIntroPage();
+      // if (isFirstLaunch == null || isFirstLaunch) {
+      //   gotoIntroPage();
+      // } else {
+      //   gotoHomePage();
+      // }
     });
   }
 

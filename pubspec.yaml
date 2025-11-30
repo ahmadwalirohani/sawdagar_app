@@ -99,6 +99,8 @@ dependencies:
   firebase_core: ^4.2.1
   cloud_firestore: ^6.1.0
   firebase_messaging: ^16.0.4
+  firebase_auth: ^6.1.2
+  flutter_vector_icons: ^2.0.0
 
 dev_dependencies:
   flutter_test:
