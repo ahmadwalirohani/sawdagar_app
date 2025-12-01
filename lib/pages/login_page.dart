@@ -190,7 +190,7 @@ class _AuthPageState extends State<AuthPage> {
                   onTap: toggle,
                   child: Text(
                     isLogin
-                        ? "New to Afghan Bazaar? Create account"
+                        ? "New to Sawdagar? Create account"
                         : "Already have an account? Sign-In",
                     style: const TextStyle(
                       fontSize: 14,
@@ -203,7 +203,7 @@ class _AuthPageState extends State<AuthPage> {
                 const Divider(),
                 const SizedBox(height: 20),
                 const Text(
-                  "By continuing, you agree to Afghan Bazaar's Conditions of Use\nand Privacy Notice.",
+                  "By continuing, you agree to Sawdagar's Conditions of Use\nand Privacy Notice.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12, color: Colors.black54),
                 ),

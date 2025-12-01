@@ -19,12 +19,12 @@ class _SplashPageState extends State<SplashPage> {
     //  final SignInBloc sb = context.read<SignInBloc>();
     Future.delayed(Duration(milliseconds: 1500)).then((value) async {
       await prefs.setBool('isFirstLaunch', false);
-      gotoIntroPage();
-      // if (isFirstLaunch == null || isFirstLaunch) {
-      //   gotoIntroPage();
-      // } else {
-      //   gotoHomePage();
-      // }
+      // gotoIntroPage();
+      if (isFirstLaunch == null || isFirstLaunch) {
+        gotoIntroPage();
+      } else {
+        gotoHomePage();
+      }
     });
   }
 

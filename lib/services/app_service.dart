@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:html/parser.dart';
-import 'package:html_unescape/html_unescape.dart';
 // import 'package:launch_review/launch_review.dart';
 //import 'package:afghan_bazar/blocs/sign_in_bloc.dart';
 import 'package:afghan_bazar/blocs/theme_bloc.dart';
@@ -12,7 +11,6 @@ import 'package:url_launcher/url_launcher.dart' as urlLauncher;
 import 'package:afghan_bazar/utils/toast.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class AppService {
   Future<bool?> checkInternet() async {
@@ -94,11 +92,11 @@ class AppService {
   // }
 
   static getYoutubeVideoIdFromUrl(String videoUrl) {
-    return YoutubePlayer.convertUrlToId(videoUrl, trimWhitespaces: true);
+    return false;
   }
 
   static getNormalText(String text) {
-    return HtmlUnescape().convert(parse(text).documentElement!.text);
+    return ''; //HtmlUnescape().convert(parse(text).documentElement!.text);
   }
 
   static getReadingTime(String text) {

@@ -20,18 +20,18 @@ class _IntroPageState extends State<IntroPage> {
       'title': 'Your Ultimate Online Marketplace',
       'subtitle':
           'Shop a wide range of products at great prices—all in one place',
-      'image': 'assets/images/slide1.png',
+      'image': 'assets/images/Intro_1.png',
     },
     {
       'title': 'Easy Shopping',
       'subtitle': 'Browse and buy with just a few taps, anytime, anywhere',
-      'image': 'assets/images/slide1.png',
+      'image': 'assets/images/Intro_3.png',
     },
     {
       'title': 'Quick Delivery & Support',
       'subtitle':
           'Get your orders delivered quickly and enjoy top-notch support',
-      'image': 'assets/images/slide1.png',
+      'image': 'assets/images/Intro_2.png',
     },
   ];
 

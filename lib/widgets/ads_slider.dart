@@ -12,9 +12,9 @@ class _AdsSliderState extends State<AdsSlider> {
   int _currentIndex = 0;
 
   final List<String> images = [
-    "https://img.freepik.com/free-psd/real-estate-house-sale-social-media-facebook-cover-template_106176-1452.jpg",
-    "https://img.freepik.com/free-psd/modern-real-estate-house-sale-web-banner-template_120329-1187.jpg",
-    "https://img.freepik.com/free-psd/real-estate-home-sale-facebook-cover-template_120329-1088.jpg",
+    "assets/images/carousel_1.png",
+    "assets/images/carousel_2.png",
+    "assets/images/carousel_3.png",
   ];
 
   @override
@@ -36,7 +36,7 @@ class _AdsSliderState extends State<AdsSlider> {
           items: images.map((url) {
             return ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
+              child: Image.asset(
                 url,
                 fit: BoxFit.cover,
                 width: double.infinity,

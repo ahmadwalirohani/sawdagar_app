@@ -13,6 +13,8 @@ class Config {
   static const String youtubeChannelUrl = '';
   static const String twitterUrl = '';
 
+  Color color1 = const Color(0xFF0053E2);
+  Color color2 = const Color(0xFFFFC220);
   //app theme color
   final Color appColor = const Color.fromARGB(255, 255, 194, 32);
 

@@ -901,7 +901,7 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
                         ),
                         const SizedBox(height: 12),
                         _ModernSwitchTile(
-                          title: "Afghan Bazaar Delivery",
+                          title: "Sawdagar Delivery",
                           subtitle: "Use our delivery network",
                           value: deliveryByAfghanBazaar,
                           onChanged: (v) =>

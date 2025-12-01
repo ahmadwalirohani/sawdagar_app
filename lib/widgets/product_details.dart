@@ -127,7 +127,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           SliverAppBar(
             expandedHeight: 380,
             pinned: true,
-            backgroundColor: const Color(0xFF0A1E2D),
+            backgroundColor: const Color.fromARGB(0, 0, 83, 226),
             leading: Container(
               margin: const EdgeInsets.only(left: 8, top: 8),
               decoration: BoxDecoration(
@@ -1200,8 +1200,8 @@ class _BottomButtonsState extends State<BottomButtons> {
     required VoidCallback onPressed,
   }) {
     final backgroundColor = isPrimary
-        ? const Color(0xFF0A1E2D)
-        : const Color(0xFF00C853);
+        ? const Color(0xFF0053E2)
+        : const Color(0xFFFFC220);
 
     return Container(
       height: 50,
@@ -1240,14 +1240,18 @@ class _BottomButtonsState extends State<BottomButtons> {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, size: 18, color: Colors.white),
+                  Icon(
+                    icon,
+                    size: 18,
+                    color: isPrimary ? Colors.white : Colors.black,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     text,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: isPrimary ? Colors.white : Colors.black,
                       letterSpacing: 0.2,
                     ),
                   ),
