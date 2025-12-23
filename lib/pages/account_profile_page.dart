@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:afghan_bazar/blocs/theme_bloc.dart';
 import 'package:afghan_bazar/pages/coming_soon_page.dart';
 import 'package:afghan_bazar/pages/favorite_items_page.dart';
@@ -8,15 +10,43 @@ import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
+
+  @override
+  State<AccountPage> createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+  String userName = '';
+  String userID = '';
+  String? defaultProfileImage = "https://via.placeholder.com/150";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    var userInfo = json.decode(prefs.getString('user_info') ?? '');
+
+    setState(() {
+      userName = userInfo['name'];
+      userID = userInfo['id'];
+
+      defaultProfileImage = userInfo['image'];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
+    //final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -113,8 +143,8 @@ class AccountPage extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Khan",
+                                  Text(
+                                    userName,
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
@@ -123,7 +153,7 @@ class AccountPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    "ID:12",
+                                    "ID:${userID}",
                                     style: TextStyle(
                                       color: const Color(0xFFFFC220),
                                       fontSize: 12,

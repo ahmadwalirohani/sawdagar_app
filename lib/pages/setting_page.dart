@@ -507,7 +507,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       }
       userPhone = userInfo['phone'];
 
-      defaultProfileImage = "${AuthService.baseHost}/${userInfo['image']}";
+      defaultProfileImage = userInfo['image'];
     });
   }
 
