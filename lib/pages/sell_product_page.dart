@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:afghan_bazar/pages/home.dart';
+import 'package:afghan_bazar/pages/login_page.dart';
 import 'package:afghan_bazar/pages/setting_page.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -296,22 +297,24 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
   }
 
   Future<void> _loadUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    var userInfo = json.decode(prefs.getString('user_info') ?? '');
+    if (await AuthService.isLoggedIn()) {
+      final prefs = await SharedPreferences.getInstance();
+      var userInfo = json.decode(prefs.getString('user_info') ?? '');
 
-    if (!mounted) return;
-    safeSetState(() {
-      if (userInfo['email_verified_at'] != null) {
-        isEmailVerified = true;
-      } else {
-        isEmailVerified = false;
-      }
-      // if (userInfo['phone_verified_at'] != null) {
-      //   isPhoneVerified = true;
-      // } else {
-      //   isPhoneVerified = false;
-      // }
-    });
+      if (!mounted) return;
+      safeSetState(() {
+        if (userInfo['email_verified_at'] != null) {
+          isEmailVerified = true;
+        } else {
+          isEmailVerified = false;
+        }
+        // if (userInfo['phone_verified_at'] != null) {
+        //   isPhoneVerified = true;
+        // } else {
+        //   isPhoneVerified = false;
+        // }
+      });
+    }
   }
   /* -------------------------- Form Submit --------------------------- */
 
@@ -400,6 +403,20 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
   List<String> selectedPickupLocations = [];
   bool deliveryByAfghanBazaar = false;
 
+  void onGotoVerifyPage() async {
+    if (await AuthService.isLoggedIn()) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => UserSettingsPage()),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AuthPage()),
+      );
+    }
+  }
+
   final pickupLocations = const [
     'Badakhshan',
     'Badghis',
@@ -442,41 +459,533 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
       context: context,
       builder: (ctx) {
         final tempSelected = List<String>.from(selectedPickupLocations);
-        return AlertDialog(
-          title: const Text('Select Pickup Locations'),
-          content: StatefulBuilder(
-            builder: (ctx, setStateDialog) => SizedBox(
-              width: double.maxFinite,
-              child: ListView(
-                shrinkWrap: true,
-                children: pickupLocations.map((loc) {
-                  return CheckboxListTile(
-                    title: Text(loc),
-                    value: tempSelected.contains(loc),
-                    onChanged: (v) {
-                      setStateDialog(() {
-                        if (v == true) {
-                          tempSelected.add(loc);
-                        } else {
-                          tempSelected.remove(loc);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+
+        return StatefulBuilder(
+          builder: (dialogContext, setStateDialog) {
+            final allSelected = tempSelected.length == pickupLocations.length;
+
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, null),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, tempSelected),
-              child: const Text('OK'),
-            ),
-          ],
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: 500, maxHeight: 600),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(context).primaryColor,
+                              Theme.of(
+                                context,
+                              ).primaryColorDark.withOpacity(0.9),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Select Pickup Locations',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            if (tempSelected.isNotEmpty)
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${tempSelected.length} selected',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+
+                      // Select All Option
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.shade200,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              setStateDialog(() {
+                                if (allSelected) {
+                                  tempSelected.clear();
+                                } else {
+                                  tempSelected.clear();
+                                  tempSelected.addAll(pickupLocations);
+                                }
+                              });
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      color: allSelected
+                                          ? Theme.of(context).primaryColor
+                                          : Colors.transparent,
+                                      border: Border.all(
+                                        color: allSelected
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.grey.shade400,
+                                        width: 2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: allSelected
+                                        ? Icon(
+                                            Icons.check,
+                                            size: 16,
+                                            color: Colors.white,
+                                          )
+                                        : null,
+                                  ),
+                                  SizedBox(width: 16),
+                                  Text(
+                                    'Select All',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey.shade800,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    allSelected ? 'Deselect All' : 'Select All',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Locations List
+                      Expanded(
+                        child: pickupLocations.isEmpty
+                            ? Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.location_off,
+                                        size: 60,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      SizedBox(height: 16),
+                                      Text(
+                                        'No pickup locations available',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: pickupLocations.length,
+                                itemBuilder: (context, index) {
+                                  final loc = pickupLocations[index];
+                                  final isSelected = tempSelected.contains(loc);
+
+                                  return Material(
+                                    color: isSelected
+                                        ? Theme.of(
+                                            context,
+                                          ).primaryColor.withOpacity(0.05)
+                                        : Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () {
+                                        setStateDialog(() {
+                                          if (isSelected) {
+                                            tempSelected.remove(loc);
+                                          } else {
+                                            tempSelected.add(loc);
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 16,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: Colors.grey.shade100,
+                                              width: 1,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            // Custom Checkbox
+                                            AnimatedContainer(
+                                              duration: Duration(
+                                                milliseconds: 200,
+                                              ),
+                                              width: 22,
+                                              height: 22,
+                                              decoration: BoxDecoration(
+                                                color: isSelected
+                                                    ? Theme.of(
+                                                        context,
+                                                      ).primaryColor
+                                                    : Colors.transparent,
+                                                border: Border.all(
+                                                  color: isSelected
+                                                      ? Theme.of(
+                                                          context,
+                                                        ).primaryColor
+                                                      : Colors.grey.shade400,
+                                                  width: 2,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: isSelected
+                                                  ? Icon(
+                                                      Icons.check,
+                                                      size: 16,
+                                                      color: Colors.white,
+                                                    )
+                                                  : null,
+                                            ),
+
+                                            SizedBox(width: 16),
+
+                                            // Location Icon
+                                            Icon(
+                                              Icons.place,
+                                              size: 20,
+                                              color: Theme.of(
+                                                context,
+                                              ).primaryColor.withOpacity(0.7),
+                                            ),
+
+                                            SizedBox(width: 12),
+
+                                            // Location Text
+                                            Expanded(
+                                              child: Text(
+                                                loc,
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.grey.shade800,
+                                                ),
+                                              ),
+                                            ),
+
+                                            // Selection Indicator
+                                            if (isSelected)
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .primaryColor
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Icon(
+                                                  Icons.check_circle,
+                                                  size: 16,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).primaryColor,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+
+                      // Footer with Actions
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey.shade200,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isSmallScreen = constraints.maxWidth < 400;
+
+                            return isSmallScreen
+                                ? Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Button Row 1: Clear All
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton(
+                                          onPressed: tempSelected.isEmpty
+                                              ? null
+                                              : () {
+                                                  setStateDialog(() {
+                                                    tempSelected.clear();
+                                                  });
+                                                },
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                Colors.grey.shade600,
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.clear_all, size: 18),
+                                              SizedBox(width: 8),
+                                              Text('Clear All Selection'),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 12),
+
+                                      // Button Row 2: Cancel & Confirm
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: OutlinedButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(ctx, null),
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor:
+                                                    Colors.grey.shade700,
+                                                side: BorderSide(
+                                                  color: Colors.grey.shade300,
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                  vertical: 12,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                              child: Text('Cancel'),
+                                            ),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Expanded(
+                                            child: ElevatedButton(
+                                              onPressed: () => Navigator.pop(
+                                                ctx,
+                                                tempSelected,
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+                                                foregroundColor: Colors.white,
+                                                padding: EdgeInsets.symmetric(
+                                                  vertical: 12,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                elevation: 0,
+                                                shadowColor: Colors.transparent,
+                                              ),
+                                              child: Text('Confirm'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // Clear All Button
+                                      TextButton(
+                                        onPressed: tempSelected.isEmpty
+                                            ? null
+                                            : () {
+                                                setStateDialog(() {
+                                                  tempSelected.clear();
+                                                });
+                                              },
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.grey.shade600,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 12,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.clear_all, size: 18),
+                                            SizedBox(width: 8),
+                                            Text('Clear All'),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // Cancel & Confirm Buttons
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                            width: 120,
+                                            child: OutlinedButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(ctx, null),
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor:
+                                                    Colors.grey.shade700,
+                                                side: BorderSide(
+                                                  color: Colors.grey.shade300,
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                  vertical: 12,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                              child: Text('Cancel'),
+                                            ),
+                                          ),
+                                          SizedBox(width: 12),
+                                          SizedBox(
+                                            width: 120,
+                                            child: ElevatedButton(
+                                              onPressed: () => Navigator.pop(
+                                                ctx,
+                                                tempSelected,
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+                                                foregroundColor: Colors.white,
+                                                padding: EdgeInsets.symmetric(
+                                                  vertical: 12,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                elevation: 0,
+                                                shadowColor: Colors.transparent,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text('Confirm'),
+                                                  if (tempSelected
+                                                      .isNotEmpty) ...[
+                                                    SizedBox(width: 6),
+                                                    Container(
+                                                      padding: EdgeInsets.all(
+                                                        4,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.2),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                      ),
+                                                      child: Text(
+                                                        tempSelected.length
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -485,7 +994,6 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
       setState(() => selectedPickupLocations = chosen);
     }
   }
-  // ... (Keep all your existing controller and state variables)
 
   /* ---------------------- UI Redesign Starts Here ---------------------- */
   Widget _blockedPage(BuildContext context) {
@@ -558,10 +1066,7 @@ class _MarketplaceSellPageState extends State<MarketplaceSellPage> {
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(25),
                 child: InkWell(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UserSettingsPage()),
-                  ),
+                  onTap: () => onGotoVerifyPage(),
                   borderRadius: BorderRadius.circular(25),
                   child: Container(
                     padding: const EdgeInsets.symmetric(

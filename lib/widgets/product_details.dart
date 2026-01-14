@@ -1,21 +1,24 @@
 import 'dart:convert';
 import 'package:afghan_bazar/models/chat_session_model.dart';
 import 'package:afghan_bazar/pages/chat_messaging_page.dart';
-import 'package:afghan_bazar/pages/chat_page.dart';
 import 'package:afghan_bazar/pages/my_orders_page.dart';
 import 'package:afghan_bazar/blocs/product_related_ads_bloc.dart';
 import 'package:afghan_bazar/pages/seller_info_page.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:afghan_bazar/widgets/order_confirmation_dialog.dart';
 import 'package:afghan_bazar/widgets/product_card.dart';
+import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:afghan_bazar/widgets/report_ads_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:afghan_bazar/models/product_ads_model.dart';
+import 'package:video_player/video_player.dart';
 
 class ProductDetails extends StatefulWidget {
   final ProductAdsModel product;
@@ -32,6 +35,12 @@ class _ProductDetailsState extends State<ProductDetails> {
   final baseHost = AuthService.baseHost;
   bool _showMore = false;
   bool isMyAd = false;
+
+  VideoPlayerController? _videoController;
+  ChewieController? _chewieController;
+  bool _isVideoPlaying = false;
+  bool _isVideo = false;
+  List<String> _mediaUrls = []; // This will contain both images and video URLs
 
   ProductAdsModel get product => widget.product;
 
@@ -60,16 +69,231 @@ class _ProductDetailsState extends State<ProductDetails> {
   void initState() {
     super.initState();
     _loadUserInfo();
+    // Combine your photos with video URL
+    _mediaUrls = [...widget.product.photos ?? []];
+    if (widget.product.videoPath != null) {
+      _mediaUrls.insert(
+        0,
+        widget.product.videoPath!,
+      ); // Add video at the beginning or wherever you want
+    }
 
-    print("$baseHost${product.userImage!}");
+    // Initialize video controller if first item is video
+    _initializeVideoIfNeeded(0);
     // load data once when page opens
-    final bloc = context.read<ProductRelatedAdsBloc>().getData(
+    context.read<ProductRelatedAdsBloc>().getData(
       product.id,
       product.title,
       product.category ?? '',
       product.location ?? '',
       product.condition,
     );
+  }
+
+  Future<void> _disposeVideoControllers() async {
+    if (_chewieController != null) {
+      _chewieController!.pause();
+      _chewieController!.dispose();
+      _chewieController = null;
+    }
+
+    if (_videoController != null) {
+      _videoController!.pause();
+      await _videoController!.dispose();
+      _videoController = null;
+    }
+  }
+
+  Future<void> _shareProduct() async {
+    final RenderBox? box = context.findRenderObject() as RenderBox?;
+    final sharePosition = box!.localToGlobal(Offset.zero) & box!.size;
+
+    final product = widget.product; // Your product object
+    final currentImage = _mediaUrls[_currentIndex];
+
+    // Show a dialog with share options
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.text_fields),
+                title: const Text('Share Product Details'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _shareProductDetails(
+                    product,
+                    currentImage,
+                    sharePosition,
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.image),
+                title: const Text('Share Image Only'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _shareImageOnly(currentImage, sharePosition);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.link),
+                title: const Text('Copy Link'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _copyProductLink(product);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.qr_code),
+                title: const Text('Generate QR Code'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showQRCode(product);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _shareProductDetails(
+    ProductAdsModel? product,
+    String currentImage,
+    Rect? sharePosition,
+  ) async {
+    String shareText =
+        """
+🛍️ ${product?.title ?? 'Amazing Product'}
+
+${product?.description ?? ''}
+
+${product?.price != null ? '💵 Price: \$${product!.price}' : ''}
+${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
+
+⭐ ${'4.5'}/5 stars
+
+
+🔗 View product: ${currentImage}
+""";
+
+    await Share.share(
+      shareText,
+      subject: product?.title ?? 'Check out this product!',
+      sharePositionOrigin: sharePosition,
+    );
+  }
+
+  Future<void> _shareImageOnly(String imageUrl, Rect? sharePosition) async {
+    await Share.share(
+      'Check out this product image!\n$imageUrl',
+      subject: 'Product Image',
+      sharePositionOrigin: sharePosition,
+    );
+  }
+
+  void _copyProductLink(ProductAdsModel? product) async {
+    final link = _mediaUrls[0];
+    await Clipboard.setData(ClipboardData(text: link));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Link copied to clipboard!')),
+      );
+    }
+  }
+
+  void _showQRCode(ProductAdsModel? product) {
+    final link = _mediaUrls[0];
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Scan to view product'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // You can use qr_flutter package for QR code generation
+              // QrImageView(data: link, size: 200),
+              const SizedBox(height: 16),
+              Text(
+                product?.title ?? 'Product QR Code',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _initializeVideoIfNeeded(int index) async {
+    await _disposeVideoControllers();
+
+    if (_isVideoUrl(_mediaUrls[index])) {
+      _isVideo = true;
+      _videoController = VideoPlayerController.network(_mediaUrls[index])
+        ..initialize().then((_) {
+          setState(() {});
+          _chewieController = ChewieController(
+            videoPlayerController: _videoController!,
+            autoPlay: false,
+            looping: true,
+            showControls: true,
+            materialProgressColors: ChewieProgressColors(
+              playedColor: Colors.blue,
+              handleColor: Colors.blueAccent,
+              backgroundColor: Colors.grey,
+              bufferedColor: Colors.grey.shade300,
+            ),
+          );
+          setState(() {});
+        });
+    } else {
+      _isVideo = false;
+      if (_chewieController != null) {
+        _chewieController!.dispose();
+        _chewieController = null;
+      }
+      if (_videoController != null && _videoController!.value.isInitialized) {
+        _videoController!.pause();
+        _videoController!.dispose();
+      }
+    }
+  }
+
+  bool _isVideoUrl(String url) {
+    final videoExtensions = [
+      '.mp4',
+      '.mov',
+      '.avi',
+      '.wmv',
+      '.flv',
+      '.webm',
+      '.mkv',
+    ];
+    final uri = Uri.parse(url);
+    final path = uri.path.toLowerCase();
+    return videoExtensions.any((ext) => path.endsWith(ext));
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    if (_chewieController != null) _chewieController!.dispose();
+    if (_videoController != null && _videoController!.value.isInitialized)
+      _videoController?.dispose();
+    super.dispose();
   }
 
   void _onSellerProfileView() async {
@@ -145,76 +369,173 @@ class _ProductDetailsState extends State<ProductDetails> {
               ),
             ),
             actions: [
+              // Video Play/Pause Button
+              if (_isVideo)
+                Container(
+                  margin: const EdgeInsets.only(right: 8, top: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      _chewieController?.isPlaying ?? false
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    padding: const EdgeInsets.all(6),
+                    onPressed: () {
+                      if (_chewieController != null) {
+                        if (_chewieController!.isPlaying) {
+                          _chewieController!.pause();
+                        } else {
+                          _chewieController!.play();
+                        }
+                        setState(() {});
+                      }
+                    },
+                  ),
+                ),
               Container(
                 margin: const EdgeInsets.only(right: 8, top: 8),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.4),
                   shape: BoxShape.circle,
                 ),
-                child: IconButton(
-                  icon: const Icon(Icons.share, color: Colors.white, size: 20),
-                  padding: const EdgeInsets.all(6),
-                  onPressed: () {},
-                ),
+                // child: IconButton(
+                //   icon: const Icon(Icons.share, color: Colors.white, size: 20),
+                //   padding: const EdgeInsets.all(6),
+                //   onPressed: () {
+                //     _shareProduct();
+                //   },
+                // ),
               ),
             ],
             toolbarHeight: 56,
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 children: [
-                  // Enhanced Image Carousel
+                  // Enhanced Media Carousel (Images + Video)
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ImageZoomScreen(
-                            images: photos,
-                            initialIndex: _currentIndex,
+                      if (!_isVideo) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ImageZoomScreen(
+                              images: photos,
+                              initialIndex: _currentIndex > 0
+                                  ? _currentIndex - 1
+                                  : 0,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                     child: PageView.builder(
                       controller: _pageController,
                       onPageChanged: (index) {
-                        setState(() => _currentIndex = index);
+                        setState(() {
+                          _currentIndex = index;
+                          _initializeVideoIfNeeded(index);
+                        });
                       },
-                      itemCount: photos.length,
+                      itemCount: _mediaUrls.length,
                       itemBuilder: (context, index) {
-                        return Hero(
-                          tag: 'image_${photos[index]}',
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.black.withOpacity(0.1),
-                                  Colors.transparent,
-                                ],
-                              ),
+                        final mediaUrl = _mediaUrls[index];
+
+                        if (_isVideoUrl(mediaUrl)) {
+                          // Video Player
+                          return Container(
+                            color: Colors.black,
+                            child: Stack(
+                              children: [
+                                if (_chewieController != null &&
+                                    _currentIndex == index)
+                                  Chewie(controller: _chewieController!)
+                                else
+                                  Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+
+                                // Video overlay with play button if not playing
+                              ],
                             ),
-                            child: Image.network(
-                              photos[index],
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(
-                                color: Colors.grey.shade100,
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  Icons.broken_image,
-                                  size: 60,
-                                  color: Colors.grey.shade400,
+                          );
+                        } else {
+                          // Image
+                          return Hero(
+                            tag: 'image_$mediaUrl',
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.black.withOpacity(0.1),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                              child: Image.network(
+                                mediaUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  color: Colors.grey.shade100,
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    size: 60,
+                                    color: Colors.grey.shade400,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       },
                     ),
                   ),
 
-                  // Enhanced Image Counter
+                  // Media Type Indicator
+                  Positioned(
+                    top: 80,
+                    left: 20,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _isVideo ? Icons.videocam : Icons.photo,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _isVideo ? 'Video' : 'Image',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Enhanced Media Counter
                   Positioned(
                     top: 80,
                     right: 20,
@@ -228,7 +549,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '${_currentIndex + 1}/${photos.length}',
+                        '${_currentIndex + 1}/${_mediaUrls.length}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
@@ -240,7 +561,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   ),
 
                   // Enhanced Thumbnails
-                  if (photos.length > 1)
+                  if (_mediaUrls.length > 1)
                     Positioned(
                       bottom: 20,
                       left: 0,
@@ -250,9 +571,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
-                          itemCount: photos.length,
+                          itemCount: _mediaUrls.length,
                           separatorBuilder: (_, __) => const SizedBox(width: 8),
                           itemBuilder: (context, index) {
+                            final mediaUrl = _mediaUrls[index];
+                            final isVideo = _isVideoUrl(mediaUrl);
+
                             return GestureDetector(
                               onTap: () {
                                 _pageController.animateToPage(
@@ -285,21 +609,60 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   borderRadius: BorderRadius.circular(10),
                                   child: Stack(
                                     children: [
-                                      Image.network(
-                                        photos[index],
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        errorBuilder: (_, __, ___) => Container(
-                                          color: Colors.grey.shade100,
-                                          alignment: Alignment.center,
-                                          child: Icon(
-                                            Icons.broken_image,
-                                            size: 60,
-                                            color: Colors.grey.shade400,
+                                      if (isVideo)
+                                        // Video thumbnail with play icon
+                                        Container(
+                                          color: Colors.black,
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.play_circle_filled,
+                                              color: Colors.white.withOpacity(
+                                                0.8,
+                                              ),
+                                              size: 30,
+                                            ),
+                                          ),
+                                        )
+                                      else
+                                        // Image thumbnail
+                                        Image.network(
+                                          mediaUrl,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          errorBuilder: (_, __, ___) =>
+                                              Container(
+                                                color: Colors.grey.shade100,
+                                                alignment: Alignment.center,
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  size: 60,
+                                                  color: Colors.grey.shade400,
+                                                ),
+                                              ),
+                                        ),
+
+                                      // Video indicator badge
+                                      if (isVideo)
+                                        Positioned(
+                                          top: 4,
+                                          right: 4,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(
+                                                0.7,
+                                              ),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.videocam,
+                                              color: Colors.white,
+                                              size: 12,
+                                            ),
                                           ),
                                         ),
-                                      ),
+
                                       if (_currentIndex == index)
                                         Container(
                                           decoration: BoxDecoration(
@@ -324,7 +687,6 @@ class _ProductDetailsState extends State<ProductDetails> {
               ),
             ),
           ),
-
           // Enhanced Content Section
           SliverToBoxAdapter(
             child: Padding(
@@ -988,8 +1350,6 @@ class _BottomButtonsState extends State<BottomButtons> {
         }),
       );
 
-      print(response.body);
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         await Future.delayed(const Duration(seconds: 2));
 
@@ -1495,7 +1855,6 @@ class _ImageZoomScreenState extends State<ImageZoomScreen> {
             },
             itemCount: widget.images.length,
             itemBuilder: (context, index) {
-              print("${widget.images[index]}");
               return GestureDetector(
                 onDoubleTap: () {
                   // Optional: Add zoom functionality here

@@ -137,6 +137,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
       }),
     );
 
+
     if (response.statusCode == 201) {
       // Calculate new average rating
       double newAverage =

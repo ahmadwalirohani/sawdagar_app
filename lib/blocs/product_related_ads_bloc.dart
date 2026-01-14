@@ -24,6 +24,7 @@ class ProductRelatedAdsBloc with ChangeNotifier {
       var response = await AuthService().authGet(
         'related-ads?ad_id=$id&title=$title&category=$category&location=$location&condition=$condition',
       );
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         List<dynamic> jsonList = json.decode(response.body);
         ProductAdsCollection data = ProductAdsCollection.fromJson(jsonList);

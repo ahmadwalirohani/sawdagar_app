@@ -1,8 +1,11 @@
 import 'dart:convert'; // Import this for json.decode
+import 'dart:io';
 import 'package:afghan_bazar/models/product_ads_model.dart';
 import 'package:flutter/material.dart';
 import 'package:afghan_bazar/collections/product_ads_collection.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class MyAdsBloc with ChangeNotifier {
   List<ProductAdsModel> _ads = [];
@@ -86,5 +89,155 @@ class MyAdsBloc with ChangeNotifier {
   void setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
+  }
+
+  // In MyAdsBloc class
+
+  Future<bool> deleteAd(int adId) async {
+    final response = await AuthService().authPost(
+      'delete-ads',
+      body: jsonEncode({'ad_id': adId}),
+    );
+
+    if (response.statusCode == 200) {
+      // Remove from local list
+      final index = _ads.indexWhere((ad) => ad.id == adId);
+      if (index != -1) {
+        _ads.removeAt(index);
+        notifyListeners();
+      }
+
+      return true; // Return true if successful
+    } else {
+      print('Error deleting Ad');
+      return false;
+    }
+  }
+
+  Future<bool> updateProduct(
+    ProductAdsModel product, {
+    List<XFile>? newImages,
+    List<String>? deletedImages,
+  }) async {
+    try {
+      // 1. Prepare the updated photos list (keep existing, remove deleted)
+      List<String> updatedPhotos = List.from(product.photos ?? []);
+
+      // Remove deleted images from the list
+      if (deletedImages != null && deletedImages.isNotEmpty) {
+        updatedPhotos.removeWhere((img) => deletedImages.contains(img));
+      }
+
+      // 2. Prepare multipart request
+      var uri = Uri.parse(
+        "${AuthService.baseUrl}/product-ads/update/${product.id}",
+      );
+
+      var request = http.MultipartRequest("POST", uri);
+
+      // 3. Add all fields
+      request.fields.addAll({
+        'title': product.title,
+        'price': product.price,
+        'currency': product.currency,
+        'category': product.category ?? '',
+        'condition': product.condition,
+        'description': product.description ?? '',
+        'location': product.location ?? '',
+        'allow_offers': product.allowOffers ? '1' : '0',
+        'pickup': product.pickup ? '1' : '0',
+        'delivery': product.delivery ? '1' : '0',
+        'delivery_by_afghanbazaar': product.deliveryByPlatform ? '1' : '0',
+        'latitude': product.latitude ?? '',
+        'longitude': product.longitude ?? '',
+        '_method': 'PUT',
+      });
+
+      // 4. Add available locations
+      if (product.availableLocations != null &&
+          product.availableLocations!.isNotEmpty) {
+        request.fields['pickup_locations'] = product.availableLocations!.join(
+          ',',
+        );
+      }
+
+      // 5. Send existing photo URLs as fields (so backend knows to keep them)
+      for (int i = 0; i < updatedPhotos.length; i++) {
+        request.fields['existing_photos[$i]'] = updatedPhotos[i];
+      }
+
+      // 6. Upload NEW images only
+      if (newImages != null && newImages.isNotEmpty) {
+        for (int i = 0; i < newImages.length; i++) {
+          final imageFile = File(newImages[i].path);
+          if (await imageFile.exists()) {
+            request.files.add(
+              await http.MultipartFile.fromPath(
+                'new_photos[$i]',
+                imageFile.path,
+              ),
+            );
+          }
+        }
+      }
+
+      // 7. Send deleted image URLs so backend can remove them
+      if (deletedImages != null && deletedImages.isNotEmpty) {
+        for (int i = 0; i < deletedImages.length; i++) {
+          request.fields['deleted_photos[$i]'] = deletedImages[i];
+        }
+      }
+
+      // 8. Add video if exists
+      if (product.videoPath != null && File(product.videoPath!).existsSync()) {
+        request.files.add(
+          await http.MultipartFile.fromPath('video', product.videoPath!),
+        );
+      }
+
+      // 9. Send the request
+      final response = await AuthService().authPost(
+        "ads/update/${product.id}",
+        body: request,
+        isMultipart: true,
+      );
+
+      // 10. Handle response
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = json.decode(response.body);
+
+        // Update local list
+        final index = _ads.indexWhere((ad) => ad.id == product.id);
+        if (index != -1) {
+          if (responseData['data'] != null) {
+            final updatedProduct = ProductAdsModel.fromJson(
+              responseData['data'],
+            );
+            _ads[index] = updatedProduct;
+          } else {
+            // Combine old and new images
+            List<String> finalPhotos = [];
+            finalPhotos.addAll(updatedPhotos); // Existing kept images
+
+            // Add new image URLs from response if available
+            if (responseData['new_images'] != null) {
+              finalPhotos.addAll(List<String>.from(responseData['new_images']));
+            }
+
+            final updatedProduct = product.copyWith(photos: finalPhotos);
+            _ads[index] = updatedProduct;
+          }
+          notifyListeners();
+        }
+
+        return true;
+      } else {
+        print('Failed to update product: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error updating product: $e');
+      return false;
+    }
   }
 }

@@ -14,7 +14,7 @@ class IntroPage extends StatefulWidget {
 class _IntroPageState extends State<IntroPage> {
   final PageController _controller = PageController();
   bool isLastPage = false;
-
+  //No matter what you sell, there’s a customer for it. Welcome to a marketplace where everything finds its buyer
   final List<Map<String, String>> pages = [
     {
       'title': 'Your Ultimate Online Marketplace',

@@ -138,4 +138,67 @@ class ProductAdsModel {
       'views': views,
     };
   }
+
+  // In your ProductAdsModel class
+
+  // Add copyWith method
+  ProductAdsModel copyWith({
+    int? id,
+    String? title,
+    String? description,
+    String? price,
+    String? currency,
+    String? status,
+    String? category,
+    String? condition,
+    List<String>? photos,
+    String? videoPath,
+    String? location,
+    String? latitude,
+    String? longitude,
+    bool? allowOffers,
+    bool? pickup,
+    bool? delivery,
+    bool? deliveryByPlatform,
+    List<String>? availableLocations,
+    String? createdAt,
+    int? userId,
+    bool? isFavorite,
+    int? activeAds,
+    String? userName,
+    String? userEmail,
+    String? userImage,
+    String? userCreatedAt,
+    int? views,
+  }) {
+    return ProductAdsModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      price: price ?? this.price,
+      currency: currency ?? this.currency,
+      status: status ?? this.status,
+      category: category ?? this.category,
+      condition: condition ?? this.condition,
+      photos: photos ?? this.photos,
+      videoPath: videoPath ?? this.videoPath,
+      location: location ?? this.location,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      allowOffers: allowOffers ?? this.allowOffers,
+      pickup: pickup ?? this.pickup,
+      delivery: delivery ?? this.delivery,
+      deliveryByPlatform: deliveryByPlatform ?? this.deliveryByPlatform,
+      availableLocations: availableLocations ?? this.availableLocations,
+      createdAt: createdAt ?? this.createdAt,
+      userId: userId ?? this.userId,
+      isFavorite: isFavorite ?? this.isFavorite,
+      activeAds: activeAds ?? this.activeAds,
+      userName: userName ?? this.userName,
+      userEmail: userEmail ?? this.userEmail,
+      userImage: userImage ?? this.userImage,
+      userCreatedAt: userCreatedAt ?? this.userCreatedAt,
+      views: views ?? this.views,
+    );
+  }
 }

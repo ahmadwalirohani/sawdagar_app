@@ -22,7 +22,8 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   String userName = '';
   String userID = '';
-  String? defaultProfileImage = "https://via.placeholder.com/150";
+  Map<String, dynamic>? jsonList;
+  String defaultProfileImage = "https://via.placeholder.com/150";
 
   @override
   void initState() {
@@ -32,14 +33,41 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<void> _loadUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
-    var userInfo = json.decode(prefs.getString('user_info') ?? '');
+    final userInfoString = prefs.getString('user_info');
+
+    if (userInfoString == null || userInfoString.isEmpty) {
+      return;
+    }
+
+    final userInfo = json.decode(userInfoString);
 
     setState(() {
-      userName = userInfo['name'];
-      userID = userInfo['id'];
-
-      defaultProfileImage = userInfo['image'];
+      userName = userInfo['name'] ?? '';
+      userID = userInfo['id']?.toString() ?? '';
+      defaultProfileImage = userInfo['image'] ?? defaultProfileImage;
     });
+
+    // ✅ Call AFTER userID is available
+    if (userID.isNotEmpty) {
+      await getUserAccountInfo();
+    }
+  }
+
+  Future<void> getUserAccountInfo() async {
+    try {
+      var response = await AuthService().authGet('user-account-info/$userID');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          jsonList = json.decode(response.body);
+        });
+      } else {
+        throw Exception(
+          'Failed to get user info. Status: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('Error fetching user info: $e');
+    }
   }
 
   @override
@@ -108,14 +136,20 @@ class _AccountPageState extends State<AccountPage> {
                                       shape: BoxShape.circle,
                                       color: Colors.white,
                                     ),
-                                    child: const CircleAvatar(
-                                      radius: 30,
-                                      backgroundColor: Color(0xFFFFC220),
-                                      child: Icon(
-                                        Icons.person,
-                                        size: 35,
-                                        color: Colors.white,
-                                      ),
+                                    child: ClipOval(
+                                      child: defaultProfileImage.isNotEmpty
+                                          ? Image.network(
+                                              defaultProfileImage, // This is where the user profile image URL is placed
+                                              width:
+                                                  60, // You can adjust the size as needed
+                                              height: 60,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : const Icon(
+                                              Icons.person,
+                                              size: 35,
+                                              color: Colors.white,
+                                            ),
                                     ),
                                   ),
                                 ),
@@ -153,7 +187,7 @@ class _AccountPageState extends State<AccountPage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    "ID:${userID}",
+                                    "ID: $userID",
                                     style: TextStyle(
                                       color: const Color(0xFFFFC220),
                                       fontSize: 12,
@@ -360,21 +394,21 @@ class _AccountPageState extends State<AccountPage> {
                     children: [
                       _statItem(
                         context,
-                        "12",
+                        jsonList?['active_ads_count'].toString() ?? "0",
                         "Active Ads",
                         Icons.sell_outlined,
                         const Color(0xFF0053E2), // Blue
                       ),
                       _statItem(
                         context,
-                        "47",
+                        jsonList?['favorite_count'].toString() ?? "0",
                         "Favorites",
                         Icons.favorite_border,
                         Colors.pink,
                       ),
                       _statItem(
                         context,
-                        "89%",
+                        "${jsonList?['rating_percent'].toString() ?? "0"}%",
                         "Rating",
                         Icons.star_border,
                         const Color(0xFFFFC220), // Orange

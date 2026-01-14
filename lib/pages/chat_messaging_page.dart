@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:afghan_bazar/models/chat_session_model.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
+import 'package:intl/intl.dart'; // Add this import
 
 class ChatMessagingPage extends StatefulWidget {
   final ChatSessionModel chatSession;
@@ -35,6 +36,15 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
   StreamSubscription<List<types.Message>>? _messagesSubscription;
   String basehost = AuthService.baseHost;
 
+  // Color Scheme
+  final Color _primaryColor = const Color(0xFF0053E2);
+  final Color _accentColor = const Color(0xFFFFC220);
+  final Color _bgColor = Colors.white;
+  final Color _surfaceColor = const Color(0xFFF8FAFD);
+  final Color _textPrimary = const Color(0xFF1A1A1A);
+  final Color _textSecondary = const Color(0xFF6B7280);
+  final Color _borderColor = const Color(0xFFE5E7EB);
+
   @override
   void initState() {
     super.initState();
@@ -50,8 +60,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
   }
 
   void _initializeUsers() {
-    // Get current user from your auth service
-    final currentUser = AuthService.getCurrentUser; // Implement this
+    final currentUser = AuthService.getCurrentUser;
 
     _me = types.User(
       id: currentUser?.id.toString() ?? '',
@@ -215,7 +224,6 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
 
     final batch = _firestore.batch();
 
-    // Add message to subcollection
     final messageRef = _firestore
         .collection('chatSessions')
         .doc(sessionId)
@@ -223,7 +231,6 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
         .doc(message.id);
     batch.set(messageRef, firebaseMessage);
 
-    // Update last message in chat session
     final sessionRef = _firestore.collection('chatSessions').doc(sessionId);
     batch.update(sessionRef, {
       'lastMessage': firebaseMessage,
@@ -236,34 +243,81 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
   Future<void> _handleAttachmentPressed() async {
     showModalBottomSheet(
       context: context,
-      showDragHandle: true,
+      backgroundColor: _surfaceColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) => SafeArea(
-        child: Wrap(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
+            Container(
+              height: 4,
+              width: 40,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: _borderColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             ListTile(
-              leading: const Icon(Icons.photo),
-              title: const Text('Photo from gallery'),
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.photo, color: _primaryColor),
+              ),
+              title: Text(
+                'Photo from gallery',
+                style: TextStyle(color: _textPrimary),
+              ),
               onTap: () async {
                 Navigator.pop(ctx);
                 await _pickImage();
               },
             ),
             ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a photo'),
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.camera_alt, color: _primaryColor),
+              ),
+              title: Text(
+                'Take a photo',
+                style: TextStyle(color: _textPrimary),
+              ),
               onTap: () async {
                 Navigator.pop(ctx);
                 await _pickImage(fromCamera: true);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.attach_file),
-              title: const Text('File (PDF/Doc/etc.)'),
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.attach_file, color: _primaryColor),
+              ),
+              title: Text(
+                'File (PDF/Doc/etc.)',
+                style: TextStyle(color: _textPrimary),
+              ),
               onTap: () async {
                 Navigator.pop(ctx);
                 await _pickFile();
               },
             ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -287,11 +341,9 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
       createdAt: DateTime.now().millisecondsSinceEpoch,
       name: picked.name,
       size: size,
-      uri: picked.path, // For local display
+      uri: picked.path,
     );
 
-    // Upload file to Firebase Storage first, then send message
-    // For now, we'll send local path (you should implement Firebase Storage upload)
     await _sendMessage(message);
   }
 
@@ -331,10 +383,8 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
           : (message as types.ImageMessage).uri;
 
       if (uri.startsWith('http')) {
-        // Open network URL in browser/download
-        // You can use url_launcher package
+        // Open network URL
       } else if (await File(uri).exists()) {
-        // Open local file
         await OpenFilex.open(uri);
       }
     }
@@ -375,75 +425,68 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
   }
 
   String _getLastSeenText() {
-    // Implement your last seen logic here
-    return "Last active 7 hours ago";
+    return "Active 7h ago";
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _bgColor,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(68),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 8,
-                offset: Offset(0, 3),
-              ),
-            ],
+          decoration: BoxDecoration(
+            color: _bgColor,
+            border: Border(bottom: BorderSide(color: _borderColor, width: 1)),
           ),
           child: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: _bgColor,
             elevation: 0,
             automaticallyImplyLeading: false,
-            leadingWidth: 40,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: Icon(Icons.arrow_back_rounded, color: _textPrimary),
               onPressed: () => Navigator.pop(context),
             ),
-            titleSpacing: 0,
+            centerTitle: false,
             title: Row(
               children: [
                 Container(
-                  height: 45,
-                  width: 45,
-                  margin: const EdgeInsets.only(left: 4, right: 10),
-                  decoration: const BoxDecoration(
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
+                    border: Border.all(color: _borderColor, width: 1.5),
                   ),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(
                       _other.imageUrl ?? 'https://i.pravatar.cc/300',
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: const Color(0xFFE9ECEF),
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.supervised_user_circle_sharp),
+                      ),
                     ),
                   ),
                 ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         _other.firstName ?? "User",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                        style: TextStyle(
+                          color: _textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         _getLastSeenText(),
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: _textSecondary, fontSize: 12),
                       ),
                     ],
                   ),
@@ -451,93 +494,54 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
               ],
             ),
             actions: [
-              PopupMenuButton<int>(
-                icon: const Icon(Icons.more_vert, color: Colors.black),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                color: Colors.white,
-                elevation: 6,
-                padding: EdgeInsets.zero,
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 1,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+              IconButton(
+                icon: Icon(Icons.more_vert_rounded, color: _textPrimary),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: _surfaceColor,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
                     ),
-                    child: const Row(
+                    builder: (ctx) => Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.delete, color: Colors.redAccent, size: 18),
-                        SizedBox(width: 10),
-                        Text(
-                          "Delete Chat",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
+                        Container(
+                          height: 4,
+                          width: 40,
+                          margin: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _borderColor,
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuDivider(height: 1),
-                  PopupMenuItem(
-                    value: 2,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.report, color: Colors.orange, size: 18),
-                        SizedBox(width: 10),
-                        Text(
-                          "Report User",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
+                        _actionTile(
+                          icon: Icons.delete_outline_rounded,
+                          title: "Delete Chat",
+                          color: Colors.red,
+                          onTap: _deleteChat,
                         ),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuDivider(height: 1),
-                  PopupMenuItem(
-                    value: 3,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.block, color: Colors.grey, size: 18),
-                        SizedBox(width: 10),
-                        Text(
-                          "Block User",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
+                        _actionTile(
+                          icon: Icons.report_outlined,
+                          title: "Report User",
+                          color: Colors.orange,
+                          onTap: _reportUser,
                         ),
+                        _actionTile(
+                          icon: Icons.block_outlined,
+                          title: "Block User",
+                          color: _textSecondary,
+                          onTap: _blockUser,
+                        ),
+                        const SizedBox(height: 8),
                       ],
                     ),
-                  ),
-                ],
-                onSelected: (value) {
-                  switch (value) {
-                    case 1:
-                      _deleteChat();
-                      break;
-                    case 2:
-                      _reportUser();
-                      break;
-                    case 3:
-                      _blockUser();
-                      break;
-                  }
+                  );
                 },
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
             ],
           ),
         ),
@@ -545,63 +549,70 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Ad Preview Section
-            Material(
-              color: Colors.grey.shade100,
-              child: InkWell(
-                onTap: () => _onProduct(widget.chatSession.adId ?? 0),
-                splashColor: Colors.grey.withOpacity(0.2),
-                highlightColor: Colors.transparent,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          widget.chatSession.adPhoto != null
-                              ? '${widget.chatSession.adPhoto}'
-                              : 'https://i.pravatar.cc/300',
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
-                        ),
+            // Ad Preview Card
+            GestureDetector(
+              onTap: () => _onProduct(widget.chatSession.adId ?? 0),
+              child: Container(
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: _surfaceColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: _borderColor),
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        widget.chatSession.adPhoto != null
+                            ? '${widget.chatSession.adPhoto}'
+                            : 'https://i.pravatar.cc/300',
+                        height: 48,
+                        width: 48,
+                        fit: BoxFit.cover,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.chatSession.adTitle ?? "No Title",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.chatSession.adTitle ?? "No Title",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: _textPrimary,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Af ${widget.chatSession.adPrice ?? 'N/A'}",
-                              style: TextStyle(
-                                color: Colors.green.shade700,
-                                fontSize: 13,
-                              ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Af ${widget.chatSession.adPrice ?? 'N/A'}",
+                            style: TextStyle(
+                              color: Colors.green.shade700,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: Colors.grey,
-                        size: 24,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: _primaryColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
-                    ],
-                  ),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: _primaryColor,
+                        size: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -616,19 +627,92 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                 user: _me,
                 isAttachmentUploading: false,
                 showUserAvatars: true,
-                showUserNames: true,
+                showUserNames: false,
+                dateFormat: DateFormat('HH:mm'),
+                timeFormat: DateFormat('HH:mm'),
                 typingIndicatorOptions: TypingIndicatorOptions(
                   typingUsers: _isTyping ? [_other] : const [],
                 ),
-                theme: const DefaultChatTheme(
-                  primaryColor: Color(0xFFFF9900),
-                  secondaryColor: Colors.grey,
+                theme: DefaultChatTheme(
+                  primaryColor: _primaryColor,
+                  secondaryColor: _accentColor,
+                  backgroundColor: _bgColor,
+                  inputBackgroundColor: _surfaceColor,
+                  inputTextColor: _textPrimary,
+                  inputTextDecoration: InputDecoration(
+                    hintStyle: TextStyle(color: _textSecondary),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: _borderColor),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: _borderColor),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: _primaryColor),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    filled: true,
+                    fillColor: _surfaceColor,
+                  ),
+                  sentMessageBodyTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                  ),
+                  receivedMessageBodyTextStyle: TextStyle(
+                    color: _textPrimary,
+                    fontSize: 15,
+                  ),
+                  sentMessageCaptionTextStyle: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                  receivedMessageCaptionTextStyle: TextStyle(
+                    color: _textSecondary,
+                  ),
+                  sentMessageLinkTitleTextStyle: const TextStyle(
+                    color: Colors.white,
+                  ),
+                  receivedMessageLinkTitleTextStyle: TextStyle(
+                    color: _textPrimary,
+                  ),
+                  sentMessageLinkDescriptionTextStyle: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                  receivedMessageLinkDescriptionTextStyle: TextStyle(
+                    color: _textSecondary,
+                  ),
+                  userAvatarTextStyle: TextStyle(
+                    color: _textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _actionTile({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: color),
+      ),
+      title: Text(title, style: TextStyle(color: _textPrimary)),
+      onTap: onTap,
     );
   }
 
@@ -639,24 +723,31 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Chat'),
-        content: const Text('Are you sure you want to delete this chat?'),
+        backgroundColor: _surfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Delete Chat',
+          style: TextStyle(color: _textPrimary, fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          'Are you sure you want to delete this chat?',
+          style: TextStyle(color: _textSecondary),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(color: _textSecondary)),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              // Implement delete logic
               await _firestore
                   .collection('chatSessions')
                   .doc(sessionId)
                   .delete();
-              Navigator.pop(context); // Go back to chat list
+              Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -664,12 +755,10 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
   }
 
   void _reportUser() {
-    // Implement report user logic
     print("Report user: ${_other.firstName}");
   }
 
   void _blockUser() {
-    // Implement block user logic
     print("Block user: ${_other.firstName}");
   }
 }

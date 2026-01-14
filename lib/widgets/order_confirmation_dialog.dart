@@ -68,33 +68,33 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
 
   void _submitOrder() {
     if (_formKey.currentState!.validate()) {
-      if (_selectedDeliveryType == 'delivery' && _selectedDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Please select a delivery date'),
-            backgroundColor: Colors.orange.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-        return;
-      }
+      // if (_selectedDeliveryType == 'delivery') {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: const Text('Please select a delivery date'),
+      //       backgroundColor: Colors.orange.shade600,
+      //       behavior: SnackBarBehavior.floating,
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(12),
+      //       ),
+      //     ),
+      //   );
+      //   return;
+      // }
 
-      if (_selectedDeliveryType == 'delivery' && _selectedTimeSlot.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Please select a time slot'),
-            backgroundColor: Colors.orange.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-        return;
-      }
+      // if (_selectedDeliveryType == 'delivery' && _selectedTimeSlot.isEmpty) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: const Text('Please select a time slot'),
+      //       backgroundColor: Colors.orange.shade600,
+      //       behavior: SnackBarBehavior.floating,
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(12),
+      //       ),
+      //     ),
+      //   );
+      //   return;
+      // }
       // Collect order details
       final orderData = {
         'productTitle': widget.productTitle,

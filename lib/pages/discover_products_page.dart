@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:afghan_bazar/blocs/product_search_bloc.dart';
 import 'package:afghan_bazar/pages/login_page.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
@@ -22,6 +24,7 @@ class _DiscoverProductPageState extends State<DiscoverProductPage> {
   ScrollController? controller;
   String baseUrl = AuthService.baseHost;
   String? queryText = null;
+  final _debouncer = Debouncer(milliseconds: 500); // 500ms delay
 
   List<String>? _selectedLocations = [];
   String? _minPrice;
@@ -165,7 +168,9 @@ class _DiscoverProductPageState extends State<DiscoverProductPage> {
                         setState(() {
                           queryText = value;
                         }),
-                        getFilterData(false),
+                        _debouncer.run(() {
+                          bloc.searchByQuery(value);
+                        }),
                       },
                     ),
                   ),
@@ -627,6 +632,23 @@ class _DiscoverProductPageState extends State<DiscoverProductPage> {
     );
   }
 }
+
+class Debouncer {
+  final int milliseconds;
+  VoidCallback? action;
+  Timer? _timer;
+
+  Debouncer({required this.milliseconds});
+
+  void run(VoidCallback action) {
+    if (_timer != null) {
+      _timer!.cancel();
+    }
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
+}
+
+// Initialize it in your state
 
 class FilterChipWidget extends StatelessWidget {
   final String label;

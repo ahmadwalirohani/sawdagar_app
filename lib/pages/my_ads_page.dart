@@ -1,9 +1,9 @@
 import 'package:afghan_bazar/blocs/my_ads_bloc.dart';
 import 'package:afghan_bazar/models/product_ads_model.dart';
+import 'package:afghan_bazar/pages/edit_product_screen.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:afghan_bazar/widgets/product_details.dart';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 
 enum ProductStatus { active, sold, ordered, expired }
@@ -334,9 +334,26 @@ class _ItemsCardState extends State<ItemsCard> {
                   PopupMenuButton<String>(
                     onSelected: (s) async {
                       if (s == 'edit') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Edit: ${ad.title}')),
+                        // Navigate to edit screen
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                EditProductScreen(product: ad),
+                          ),
                         );
+
+                        // If product was updated, refresh the list
+                        if (result == true) {
+                          // Trigger refresh of ads list
+                          final myAdsBloc = context.read<MyAdsBloc>();
+                          myAdsBloc.getData(
+                            true,
+                            status: null,
+                            sortBy: 'date_desc',
+                            queryText: '',
+                          );
+                        }
                       } else if (s == 'delete') {
                         final confirmed = await showDialog<bool>(
                           context: context,
@@ -358,19 +375,43 @@ class _ItemsCardState extends State<ItemsCard> {
                           ),
                         );
                         if (confirmed == true) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Deleted')),
-                          );
+                          // Call delete API
+                          final myAdsBloc = context.read<MyAdsBloc>();
+                          final success = await myAdsBloc.deleteAd(ad.id!);
+
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '"${ad.title}" deleted successfully',
+                                ),
+                              ),
+                            );
+
+                            // Refresh the list
+                            myAdsBloc.getData(
+                              true,
+                              status: null,
+                              sortBy: 'date_desc',
+                              queryText: '',
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Failed to delete ad'),
+                              ),
+                            );
+                          }
                         }
                       } else if (s == 'stats') {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (c) => FractionallySizedBox(
-                            heightFactor: 0.85,
-                            child: ProductStatsSheet(product: ad),
-                          ),
-                        );
+                        // showModalBottomSheet(
+                        //   context: context,
+                        //   isScrollControlled: true,
+                        //   builder: (c) => FractionallySizedBox(
+                        //     heightFactor: 0.85,
+                        //     child: ProductStatsSheet(product: ad),
+                        //   ),
+                        // );
                       }
                     },
                     itemBuilder: (_) => [
@@ -384,16 +425,16 @@ class _ItemsCardState extends State<ItemsCard> {
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
-                        value: 'stats',
-                        child: Row(
-                          children: [
-                            Icon(Icons.analytics),
-                            SizedBox(width: 8),
-                            Text('View Stats'),
-                          ],
-                        ),
-                      ),
+                      // const PopupMenuItem(
+                      //   value: 'stats',
+                      //   child: Row(
+                      //     children: [
+                      //       Icon(Icons.analytics),
+                      //       SizedBox(width: 8),
+                      //       Text('View Stats'),
+                      //     ],
+                      //   ),
+                      // ),
                       const PopupMenuItem(
                         value: 'delete',
                         child: Row(
@@ -431,7 +472,9 @@ class _ItemsCardState extends State<ItemsCard> {
                               Navigator.pop(ctx);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Ad boosted successfully!"),
+                                  content: Text(
+                                    "This feature is not yet implemented. Comming Soon",
+                                  ),
                                 ),
                               );
                             },
@@ -477,251 +520,3 @@ class _ItemsCardState extends State<ItemsCard> {
     );
   }
 }
-
-class ProductStatsSheet extends StatelessWidget {
-  final ProductAdsModel product;
-  const ProductStatsSheet({Key? key, required this.product}) : super(key: key);
-
-  // Build some fake time-series data for charts
-  List<FlSpot> _buildViewsSpots() {
-    // last 10 days
-    final base = product.views ?? 0;
-    return List.generate(
-      10,
-      (i) => FlSpot(i.toDouble(), base - (i * 3) + (i % 3) * 8),
-    );
-  }
-
-  List<BarChartGroupData> _buildBarData() {
-    return List.generate(
-      7,
-      (i) => BarChartGroupData(
-        x: i,
-        barRods: [BarChartRodData(toY: ((product.views ?? 0) / 10) + i * 5)],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Stats - \${product.title}'),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Published: \${product.publishedAt.toLocal().toString().split('
-              ').first}',
-            ),
-            SizedBox(height: 12),
-            Text('Key metrics', style: Theme.of(context).textTheme.titleLarge),
-            SizedBox(height: 10),
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              spacing: 16,
-              runSpacing: 8,
-              children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 80, maxWidth: 160),
-                  child: _metricTile('Views', product.views.toString()),
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 80, maxWidth: 160),
-                  child: _metricTile(
-                    'CTR',
-                    '\${product.ctr.toStringAsFixed(1)}%',
-                  ),
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 80, maxWidth: 160),
-                  child: _metricTile(
-                    'Conv',
-                    '\${product.conversion.toStringAsFixed(1)}%',
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _CardWrapper(
-                      child: _ViewsLineChart(spots: _buildViewsSpots()),
-                    ),
-                    SizedBox(height: 12),
-                    _CardWrapper(child: _CTRBarChart(groups: _buildBarData())),
-                    SizedBox(height: 12),
-                    _CardWrapper(child: _DataTable(product: product)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _metricTile(String title, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        SizedBox(height: 4),
-        Text(title),
-      ],
-    );
-  }
-}
-
-class _CardWrapper extends StatelessWidget {
-  final Widget child;
-  const _CardWrapper({Key? key, required this.child}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: Padding(padding: EdgeInsets.all(12), child: child),
-    );
-  }
-}
-
-class _ViewsLineChart extends StatelessWidget {
-  final List<FlSpot> spots;
-  const _ViewsLineChart({Key? key, required this.spots}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 220,
-      child: LineChart(
-        LineChartData(
-          titlesData: FlTitlesData(
-            show: true,
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-            bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          gridData: FlGridData(show: true),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: true,
-              barWidth: 3,
-              dotData: FlDotData(show: false),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CTRBarChart extends StatelessWidget {
-  final List<BarChartGroupData> groups;
-  const _CTRBarChart({Key? key, required this.groups}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: BarChart(
-        BarChartData(
-          barGroups: groups,
-          titlesData: FlTitlesData(
-            show: true,
-            bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          gridData: FlGridData(show: false),
-        ),
-      ),
-    );
-  }
-}
-
-class _DataTable extends StatelessWidget {
-  final ProductAdsModel product;
-  const _DataTable({Key? key, required this.product}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Table(
-      columnWidths: {0: FlexColumnWidth(2), 1: FlexColumnWidth(3)},
-      children: [
-        _tableRow('ID', product.id.toString()),
-        _tableRow('Title', product.title),
-        _tableRow('Price', '\$ \${product.price.toStringAsFixed(2)}'),
-        _tableRow('Views', product.views.toString()),
-        _tableRow('CTR', '\${product.ctr.toStringAsFixed(2)}%'),
-        _tableRow('Conv', '\${product.conversion.toStringAsFixed(2)}%'),
-        _tableRow('Published', (product.createdAt ?? '')),
-      ],
-    );
-  }
-
-  TableRow _tableRow(String a, String b) => TableRow(
-    children: [
-      Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text(a)),
-      Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text(b)),
-    ],
-  );
-}
-
-// // -----------------------------
-// // Example app to demo the page
-// // -----------------------------
-
-// void main() {
-//   runApp(MyAdsDemo());
-// }
-
-// class MyAdsDemo extends StatefulWidget {
-//   @override
-//   State<MyAdsDemo> createState() => _MyAdsDemoState();
-// }
-
-// class _MyAdsDemoState extends State<MyAdsDemo> {
-//   ThemeMode _theme = ThemeMode.system;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       title: 'My Ads Demo',
-//       themeMode: _theme,
-//       theme: ThemeData.light().copyWith(useMaterial3: true, colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)),
-//       darkTheme: ThemeData.dark().copyWith(useMaterial3: true, colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark)),
-//       home: Builder(builder: (context) => _home(context)),
-//     );
-//   }
-
-//   Widget _home(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Demo App'),
-//         actions: [
-//           IconButton(
-//             icon: Icon(Icons.brightness_6),
-//             onPressed: () => setState(() => _theme = _theme == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark),
-//           )
-//         ],
-//       ),
-//       body: MyAdsPage(),
-//     );
-//   }
-// }
