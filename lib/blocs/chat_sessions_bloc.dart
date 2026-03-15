@@ -104,10 +104,10 @@ class ChatSessionsBloc with ChangeNotifier {
     final currentUser = AuthService.getCurrentUser;
 
     if (currentUser == null) return;
-    // Listen to all chat sessions for current user
+    // Listen to all chat sessions for current userf
     _firebaseSubscription = _firestore
         .collection('chatSessions')
-        .where('participants.${currentUser.id}', isNull: false)
+        .where('participants', arrayContains: currentUser.id)
         .orderBy('lastUpdated', descending: true)
         .snapshots()
         .listen((snapshot) {

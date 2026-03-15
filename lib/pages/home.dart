@@ -201,7 +201,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _navItem(context, 0, LineIcons.home, "home"),
+          _navItem(context, 0, LineIcons.home, "Home"),
           _navItem(context, 1, LineIcons.clipboardList, "Orders"),
           const SizedBox(width: 68),
           _navItem(context, 3, LineIcons.facebookMessenger, "Chats"),

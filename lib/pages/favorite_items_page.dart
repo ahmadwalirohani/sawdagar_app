@@ -3,6 +3,7 @@ import 'package:afghan_bazar/models/product_ads_model.dart';
 import 'package:afghan_bazar/services/api_service.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:afghan_bazar/widgets/product_details.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,7 @@ class _FavoriteItemsPageState extends State<FavoriteItemsPage> {
     var items = bloc.getAds();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Favourites', style: TextStyle(color: Colors.black)),
+        title:  Text('Favourites'.tr(), style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         leading: const BackButton(color: Colors.black),
       ),
@@ -131,8 +132,8 @@ class _FavoriteItemCardState extends State<FavoriteItemCard> {
                           color: Colors.amber,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text(
-                          "FEATURED",
+                        child:  Text(
+                          "Featured".tr(),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -172,7 +173,7 @@ class _FavoriteItemCardState extends State<FavoriteItemCard> {
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
-                        ad.location ?? 'No location',
+                        ad.location ?? 'No location'.tr(),
                         style: TextStyle(color: Colors.grey[700], fontSize: 13),
                       ),
                     ),

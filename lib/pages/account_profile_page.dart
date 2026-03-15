@@ -531,7 +531,7 @@ class _AccountPageState extends State<AccountPage> {
             children: [
               _languageOption(context, "English", "en"),
               _languageOption(context, "Pashto", "ps"),
-              _languageOption(context, "Arabic", "ar"),
+              _languageOption(context, "Dari", "fa"),
             ],
           ),
           actions: [
@@ -568,7 +568,7 @@ class _AccountPageState extends State<AccountPage> {
         } else if (language == 'Pashto') {
           context.setLocale(const Locale('ps'));
         } else if (language == 'Arabic') {
-          context.setLocale(const Locale('ar'));
+          context.setLocale(const Locale('da'));
         }
       },
     );

@@ -1,5 +1,6 @@
 import 'package:afghan_bazar/blocs/trending_ads_bloc.dart';
 import 'package:afghan_bazar/pages/discover_products_page.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:afghan_bazar/widgets/ads_slider.dart';
 import 'package:afghan_bazar/widgets/product_categories.dart';
@@ -34,7 +35,7 @@ class _MainPageState extends State<MainPage> {
 
     final List<CategoryItem> categories = [
       CategoryItem(
-        name: 'Mobiles',
+        name: 'Mobiles'.tr(),
         imagePath: 'assets/images/ic_mobiles.png',
         onTap: () => {
           Navigator.push(
@@ -46,7 +47,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Services',
+        name: 'Services'.tr(),
         imagePath: 'assets/images/ic_services.png',
         onTap: () => {
           Navigator.push(
@@ -58,7 +59,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Vehicles',
+        name: 'Vehicles'.tr(),
         imagePath: 'assets/images/ic_motors.png',
         onTap: () => {
           Navigator.push(
@@ -70,7 +71,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Jobs',
+        name: 'Jobs'.tr(),
         imagePath: 'assets/images/ic_jobs.png',
         onTap: () => {
           Navigator.push(
@@ -82,7 +83,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Property for Sales',
+        name: 'Property for Sales'.tr(),
         imagePath: 'assets/images/ic_property.png',
         onTap: () => {
           Navigator.push(
@@ -95,7 +96,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Animals',
+        name: 'Animals'.tr(),
         imagePath: 'assets/images/ic_animals.png',
         onTap: () => {
           Navigator.push(
@@ -107,7 +108,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Property for Rent',
+        name: 'Property for Rent'.tr(),
         imagePath: 'assets/images/ic_property_for_rent.png',
         onTap: () => {
           Navigator.push(
@@ -120,7 +121,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Furnitures & Home Decoration',
+        name: 'Furnitures & Home Decoration'.tr(),
         imagePath: 'assets/images/ic_furniture.png',
         onTap: () => {
           Navigator.push(
@@ -133,7 +134,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Electornices & Home Applainces',
+        name: 'Electornices & Home Applainces'.tr(),
         imagePath: 'assets/images/ic_electronics.png',
         onTap: () => {
           Navigator.push(
@@ -147,7 +148,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Fashion and Beauty',
+        name: 'Fashion and Beauty'.tr(),
         imagePath: 'assets/images/ic_fashion.png',
         onTap: () => {
           Navigator.push(
@@ -160,7 +161,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Bikes',
+        name: 'Bikes'.tr(),
         imagePath: 'assets/images/ic_bikes.png',
         onTap: () => {
           Navigator.push(
@@ -173,7 +174,7 @@ class _MainPageState extends State<MainPage> {
       ),
 
       CategoryItem(
-        name: 'Books ,Sports &  Hobbies',
+        name: 'Books ,Sports &  Hobbies'.tr(),
         imagePath: 'assets/images/ic_books.png',
         onTap: () => {
           Navigator.push(
@@ -186,7 +187,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Bussiness ,Industrial & Agriculture',
+        name: 'Bussiness ,Industrial & Agriculture'.tr(),
         imagePath: 'assets/images/ic_business_industrial.png',
         onTap: () => {
           Navigator.push(
@@ -200,7 +201,7 @@ class _MainPageState extends State<MainPage> {
         },
       ),
       CategoryItem(
-        name: 'Kids',
+        name: 'Kids'.tr(),
         imagePath: 'assets/images/ic_for_kids.png',
         onTap: () => {
           Navigator.push(
@@ -234,7 +235,7 @@ class _MainPageState extends State<MainPage> {
               itemHeight: 105,
             ),
             ProductSection(
-              title: "Mobile Phones",
+              title: "Mobile Phones".tr(),
 
               onViewAll: () {
                 Navigator.push(
@@ -247,7 +248,7 @@ class _MainPageState extends State<MainPage> {
               products: bloc.getAds("Mobiles"),
             ),
             ProductSection(
-              title: "Cars",
+              title: "Cars".tr(),
               onViewAll: () {
                 Navigator.push(
                   context,
@@ -259,7 +260,7 @@ class _MainPageState extends State<MainPage> {
               products: bloc.getAds("Vehicles"),
             ),
             ProductSection(
-              title: "Bikes & Motorcycles",
+              title: "Bikes & Motorcycles".tr(),
               onViewAll: () {
                 Navigator.push(
                   context,
@@ -271,7 +272,7 @@ class _MainPageState extends State<MainPage> {
               products: bloc.getAds("Bikes"),
             ),
             ProductSection(
-              title: "Houses",
+              title: "Houses".tr(),
               onViewAll: () {
                 Navigator.push(
                   context,
@@ -283,24 +284,24 @@ class _MainPageState extends State<MainPage> {
               products: bloc.getAds("Houses"),
             ),
             ProductSection(
-              title: "Fashion & Beauty",
+              title: "Fashion & Beauty".tr(),
               onViewAll: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => DiscoverProductPage(category: 'Mobiles'),
+                    builder: (_) => DiscoverProductPage(category: 'Fashion'),
                   ),
                 );
               },
               products: bloc.getAds("Fashion"),
             ),
             ProductSection(
-              title: "Jobs",
+              title: "Jobs".tr(),
               onViewAll: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => DiscoverProductPage(category: 'Mobiles'),
+                    builder: (_) => DiscoverProductPage(category: 'Jobs'),
                   ),
                 );
               },

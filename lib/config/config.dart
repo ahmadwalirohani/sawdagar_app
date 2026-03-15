@@ -28,14 +28,4 @@ class Config {
 
   //Language Setup
   final List<String> languages = ['English', 'Pashto', 'Dari'];
-
-  //initial categories - 4 only (Hard Coded : which are added already on your admin panel)
-  final List initialCategories = [
-    'Afghanistan',
-    'Asia',
-    'World',
-    'analysis',
-    'articles',
-    'programs',
-  ];
 }

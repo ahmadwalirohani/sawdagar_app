@@ -1,4 +1,5 @@
 // Add this import at the top
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class OrderConfirmationDialog extends StatefulWidget {
@@ -119,7 +120,7 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
 
   String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your phone number';
+      return 'Please enter your phone number'.tr();
     }
     if (value.length < 10) {
       return 'Please enter a valid phone number';
@@ -130,7 +131,7 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
   String? _validateAddress(String? value) {
     if (_selectedDeliveryType == 'delivery' &&
         (value == null || value.isEmpty)) {
-      return 'Please enter your delivery address';
+      return 'Please enter your delivery address'.tr();
     }
     return null;
   }
@@ -195,9 +196,9 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Order Confirmation',
+                            'Order Confirmation'.tr(),
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
@@ -253,14 +254,14 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Delivery Type Selection
-                        _buildSectionHeader('Delivery Method'),
+                        _buildSectionHeader('Delivery Method'.tr()),
                         const SizedBox(height: 12),
                         Row(
                           children: [
                             Expanded(
                               child: _buildDeliveryOption(
-                                title: 'Pickup',
-                                subtitle: 'Collect from seller',
+                                title: 'Pickup'.tr(),
+                                subtitle: 'Collect from seller'.tr(),
                                 icon: Icons.storefront_rounded,
                                 isSelected: _selectedDeliveryType == 'pickup',
                                 onTap: () {
@@ -273,8 +274,8 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: _buildDeliveryOption(
-                                title: 'Delivery',
-                                subtitle: 'Get it delivered',
+                                title: 'Delivery'.tr(),
+                                subtitle: 'Get it delivered'.tr(),
                                 icon: Icons.delivery_dining_rounded,
                                 isSelected: _selectedDeliveryType == 'delivery',
                                 onTap: () {
@@ -290,12 +291,12 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                         const SizedBox(height: 24),
 
                         // Contact Information
-                        _buildSectionHeader('Contact Information'),
+                        _buildSectionHeader('Contact Information'.tr()),
                         const SizedBox(height: 16),
                         _buildTextField(
                           controller: _phoneController,
-                          label: 'Phone Number',
-                          hintText: 'Enter your phone number',
+                          label: 'Phone Number'.tr(),
+                          hintText: 'Enter your phone number'.tr(),
                           prefixIcon: Icons.phone_rounded,
                           keyboardType: TextInputType.phone,
                           validator: _validatePhone,
@@ -307,8 +308,8 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                         if (_selectedDeliveryType == 'delivery') ...[
                           _buildTextField(
                             controller: _addressController,
-                            label: 'Delivery Address',
-                            hintText: 'Enter your complete address',
+                            label: 'Delivery Address'.tr(),
+                            hintText: 'Enter your complete address'.tr(),
                             prefixIcon: Icons.location_on_rounded,
                             maxLines: 3,
                             validator: _validateAddress,
@@ -318,7 +319,7 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
 
                         // Date and Time Selection (only for delivery)
                         if (_selectedDeliveryType == 'delivery') ...[
-                          _buildSectionHeader('Delivery Schedule'),
+                          _buildSectionHeader('Delivery Schedule'.tr()),
                           const SizedBox(height: 16),
                           Column(
                             children: [
@@ -333,12 +334,13 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                         ],
 
                         // Additional Notes
-                        _buildSectionHeader('Additional Notes (Optional)'),
+                        _buildSectionHeader('Additional Notes (Optional)'.tr()),
                         const SizedBox(height: 12),
                         _buildTextField(
                           controller: _notesController,
-                          label: 'Special Instructions',
-                          hintText: 'Any special requests or instructions...',
+                          label: 'Special Instructions'.tr(),
+                          hintText: 'Any special requests or instructions...'
+                              .tr(),
                           prefixIcon: Icons.note_alt_rounded,
                           maxLines: 3,
                         ),
@@ -366,8 +368,8 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text(
-                          'Cancel',
+                        child: Text(
+                          'Cancel'.tr(),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -388,13 +390,13 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.check_circle_rounded, size: 20),
                             SizedBox(width: 8),
                             Text(
-                              'Confirm Order',
+                              'Confirm Order'.tr(),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -560,8 +562,8 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Delivery Date',
+        Text(
+          'Delivery Date'.tr(),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -590,7 +592,7 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
                   child: Text(
                     _selectedDate != null
                         ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                        : 'Select date',
+                        : 'Select date'.tr(),
                     style: TextStyle(
                       fontSize: 16,
                       color: _selectedDate != null
@@ -611,8 +613,8 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Time Slot',
+        Text(
+          'Time Slot'.tr(),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -631,7 +633,7 @@ class _OrderConfirmationDialogState extends State<OrderConfirmationDialog> {
             });
           },
           decoration: InputDecoration(
-            hintText: 'Select time',
+            hintText: 'Select time'.tr(),
             hintStyle: TextStyle(color: Colors.grey.shade500),
             filled: true,
             fillColor: Colors.grey.shade50,

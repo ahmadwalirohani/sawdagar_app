@@ -4,6 +4,7 @@ import 'package:afghan_bazar/blocs/user_published_ads_bloc.dart';
 import 'package:afghan_bazar/cards/profile_ads_card.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:afghan_bazar/widgets/product_details.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -70,11 +71,11 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Rate Seller'),
+        title: Text('Rate Seller'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('How would you rate this seller?'),
+            Text('How would you rate this seller?'.tr()),
             const SizedBox(height: 16),
             // Star rating widget
             StatefulBuilder(
@@ -101,10 +102,10 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
             const SizedBox(height: 16),
             TextField(
               controller: feedbackController,
-              decoration: const InputDecoration(
-                labelText: 'Feedback (Optional)',
+              decoration: InputDecoration(
+                labelText: 'Feedback (Optional)'.tr(),
                 border: OutlineInputBorder(),
-                hintText: 'Share your experience with this seller...',
+                hintText: 'Share your experience with this seller...'.tr(),
               ),
               maxLines: 3,
             ),
@@ -113,14 +114,14 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () {
               _submitRating(userRating, feedbackController.text);
               Navigator.pop(context);
             },
-            child: const Text('Submit Rating'),
+            child: Text('Submit Rating'.tr()),
           ),
         ],
       ),
@@ -136,7 +137,6 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
         'feedback': feedback,
       }),
     );
-
 
     if (response.statusCode == 201) {
       // Calculate new average rating
@@ -157,14 +157,16 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Thank you for your ${rating.toInt()}-star rating!'),
+          content: Text(
+            'Thank you for your ${rating.toInt()}-star rating!'.tr(),
+          ),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Failed to rate")));
+      ).showSnackBar(SnackBar(content: Text("Failed to rate".tr())));
     }
   }
 
@@ -245,7 +247,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Public Profile"),
+        title: Text("Public Profile".tr()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, size: 20),
           iconSize: 20,
@@ -308,7 +310,9 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                               children: [
                                 const Icon(Icons.calendar_today, size: 16),
                                 const SizedBox(width: 6),
-                                Text("Member Since ${widget.memberSince}"),
+                                Text(
+                                  "${'Member Since'.tr()} ${widget.memberSince}",
+                                ),
                               ],
                             ),
                             const SizedBox(height: 4),
@@ -316,7 +320,9 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                               children: [
                                 const Icon(Icons.assignment, size: 16),
                                 const SizedBox(width: 6),
-                                Text("Published Ads: ${widget.publishedAds}"),
+                                Text(
+                                  "${'Published Ads'.tr()}: ${widget.publishedAds}",
+                                ),
                               ],
                             ),
                           ],
@@ -338,8 +344,8 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Seller Rating",
+                        Text(
+                          "Seller Rating".tr(),
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -440,7 +446,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                             ),
                           ),
                         ] else ...[
-                          const Center(
+                          Center(
                             child: Column(
                               children: [
                                 Icon(
@@ -450,7 +456,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                                 ),
                                 SizedBox(height: 8),
                                 Text(
-                                  "No ratings yet",
+                                  "No ratings yet".tr(),
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey,
@@ -459,7 +465,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  "Be the first to rate this seller",
+                                  "Be the first to rate this seller".tr(),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey,
@@ -479,7 +485,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                             child: ElevatedButton.icon(
                               onPressed: _showRatingDialog,
                               icon: const Icon(Icons.star, size: 20),
-                              label: const Text('Rate This Seller'),
+                              label: Text('Rate This Seller'.tr()),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.amber,
                                 foregroundColor: Colors.white,
@@ -506,7 +512,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "You've rated this seller",
+                                  "You've rated this seller".tr(),
                                   style: TextStyle(
                                     color: Colors.green[700],
                                     fontWeight: FontWeight.w500,
@@ -525,8 +531,8 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Published Ads",
+                      Text(
+                        "Published Ads".tr(),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -562,12 +568,12 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
   }
 
   String _getRatingDescription(double rating) {
-    if (rating >= 4.5) return "Excellent seller! Highly recommended";
-    if (rating >= 4.0) return "Very good seller. Great experience";
-    if (rating >= 3.5) return "Good seller. Satisfactory service";
-    if (rating >= 3.0) return "Average seller. Meets expectations";
-    if (rating >= 2.0) return "Needs improvement in some areas";
-    return "Poor experience. Needs significant improvement";
+    if (rating >= 4.5) return "Excellent seller! Highly recommended".tr();
+    if (rating >= 4.0) return "Very good seller. Great experience".tr();
+    if (rating >= 3.5) return "Good seller. Satisfactory service".tr();
+    if (rating >= 3.0) return "Average seller. Meets expectations".tr();
+    if (rating >= 2.0) return "Needs improvement in some areas".tr();
+    return "Poor experience. Needs significant improvement".tr();
   }
 
   Color _getRatingColor(double rating) {

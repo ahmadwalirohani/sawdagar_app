@@ -5,6 +5,7 @@ import 'package:afghan_bazar/collections/product_ads_collection.dart';
 import 'package:afghan_bazar/models/order_model.dart';
 import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:afghan_bazar/widgets/product_details.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -77,17 +78,17 @@ class _MyOrdersPageState extends State<MyOrdersPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Orders", style: TextStyle(color: Colors.black)),
+        title: Text("My Orders".tr(), style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 1,
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.black,
           unselectedLabelColor: Colors.grey,
-          tabs: const [
-            Tab(text: "All Orders"),
-            Tab(text: "To Pay"),
-            Tab(text: "To Receive"),
+          tabs: [
+            Tab(text: "All Orders".tr()),
+            Tab(text: "To Pay".tr()),
+            Tab(text: "To Receive".tr()),
           ],
         ),
       ),
@@ -95,15 +96,15 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         controller: _tabController,
         children: [
           if (items.isEmpty)
-            _emptyPage("No orders")
+            _emptyPage("No orders".tr())
           else
             _ordersList(items), // Will loop through the orders here
           if (items.isEmpty)
-            _emptyPage("No pending payments")
+            _emptyPage("No pending payments".tr())
           else
             _ordersList(items),
           if (items.isEmpty)
-            _emptyPage("No items to receive")
+            _emptyPage("No items to receive".tr())
           else
             _ordersList(items),
         ],
@@ -168,7 +169,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Order No. $orderNo",
+                      "${"Order No.".tr()} $orderNo",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -195,7 +196,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Placed on $date",
+                  "${"Placed on".tr()} $date",
                   style: const TextStyle(color: Colors.grey, fontSize: 13),
                 ),
 
@@ -249,7 +250,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    "Total $qty Item(s) $total",
+                    "${"Total".tr()} $qty ${"Item(s)".tr()} $total",
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,

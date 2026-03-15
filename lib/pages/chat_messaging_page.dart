@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:afghan_bazar/collections/product_ads_collection.dart';
 import 'package:afghan_bazar/widgets/product_details.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -271,7 +272,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                 child: Icon(Icons.photo, color: _primaryColor),
               ),
               title: Text(
-                'Photo from gallery',
+                'Photo from gallery'.tr(),
                 style: TextStyle(color: _textPrimary),
               ),
               onTap: () async {
@@ -290,7 +291,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                 child: Icon(Icons.camera_alt, color: _primaryColor),
               ),
               title: Text(
-                'Take a photo',
+                'Take a photo'.tr(),
                 style: TextStyle(color: _textPrimary),
               ),
               onTap: () async {
@@ -309,7 +310,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                 child: Icon(Icons.attach_file, color: _primaryColor),
               ),
               title: Text(
-                'File (PDF/Doc/etc.)',
+                'File (PDF/Doc/etc.)'.tr(),
                 style: TextStyle(color: _textPrimary),
               ),
               onTap: () async {
@@ -425,7 +426,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
   }
 
   String _getLastSeenText() {
-    return "Active 7h ago";
+    return "Active 7h ago".tr();
   }
 
   @override
@@ -476,7 +477,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _other.firstName ?? "User",
+                        _other.firstName ?? "User".tr(),
                         style: TextStyle(
                           color: _textPrimary,
                           fontWeight: FontWeight.w600,
@@ -519,19 +520,19 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                         ),
                         _actionTile(
                           icon: Icons.delete_outline_rounded,
-                          title: "Delete Chat",
+                          title: "Delete Chat".tr(),
                           color: Colors.red,
                           onTap: _deleteChat,
                         ),
                         _actionTile(
                           icon: Icons.report_outlined,
-                          title: "Report User",
+                          title: "Report User".tr(),
                           color: Colors.orange,
                           onTap: _reportUser,
                         ),
                         _actionTile(
                           icon: Icons.block_outlined,
-                          title: "Block User",
+                          title: "Block User".tr(),
                           color: _textSecondary,
                           onTap: _blockUser,
                         ),
@@ -579,7 +580,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.chatSession.adTitle ?? "No Title",
+                            widget.chatSession.adTitle ?? "No Title".tr(),
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
@@ -726,17 +727,17 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
         backgroundColor: _surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Delete Chat',
+          'Delete Chat'.tr(),
           style: TextStyle(color: _textPrimary, fontWeight: FontWeight.w600),
         ),
         content: Text(
-          'Are you sure you want to delete this chat?',
+          'Are you sure you want to delete this chat?'.tr(),
           style: TextStyle(color: _textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: _textSecondary)),
+            child: Text('Cancel'.tr(), style: TextStyle(color: _textSecondary)),
           ),
           TextButton(
             onPressed: () async {
@@ -747,7 +748,7 @@ class _ChatMessagingPageState extends State<ChatMessagingPage> {
                   .delete();
               Navigator.pop(context);
             },
-            child: Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text('Delete'.tr(), style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

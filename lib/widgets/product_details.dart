@@ -9,6 +9,7 @@ import 'package:afghan_bazar/widgets/order_confirmation_dialog.dart';
 import 'package:afghan_bazar/widgets/product_card.dart';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -523,7 +524,7 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            _isVideo ? 'Video' : 'Image',
+                            _isVideo ? 'Video'.tr() : 'Image'.tr(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -709,13 +710,13 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.star, size: 14, color: Colors.white),
                           SizedBox(width: 4),
                           Text(
-                            "Featured",
+                            "Featured".tr(),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -794,7 +795,7 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                                   }
                                 },
                                 child: Text(
-                                  product.location ?? "Unknown",
+                                  product.location ?? "Unknown".tr(),
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
@@ -853,8 +854,8 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                               size: 20,
                             ),
                           ),
-                          title: const Text(
-                            "Product Details",
+                          title: Text(
+                            "Product Details".tr(),
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -875,7 +876,7 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                               children: [
                                 if (product.condition != null)
                                   _buildDetailRow(
-                                    "Condition",
+                                    "Condition".tr(),
                                     product.condition!,
                                     Icons.construction,
                                   ),
@@ -886,8 +887,8 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                                         CrossAxisAlignment.start,
                                     children: [
                                       const SizedBox(height: 12),
-                                      const Text(
-                                        "Available Locations:",
+                                      Text(
+                                        "Available Locations:".tr(),
                                         style: TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 14,
@@ -940,8 +941,8 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                   const SizedBox(height: 24),
 
                   // Description
-                  const Text(
-                    "Description",
+                  Text(
+                    "Description".tr(),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -956,7 +957,7 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      product.description ?? "No description provided",
+                      product.description ?? "No description provided".tr(),
                       style: const TextStyle(
                         fontSize: 15,
                         height: 1.6,
@@ -968,8 +969,8 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                   const SizedBox(height: 28),
 
                   // Enhanced Seller Info
-                  const Text(
-                    "Seller Information",
+                  Text(
+                    "Seller Information".tr(),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -1035,7 +1036,7 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                product.userName ?? "Unknown",
+                                product.userName ?? "Unknown".tr(),
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w700,
@@ -1051,7 +1052,7 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    "Member since ${product.userCreatedAt ?? 'N/A'}",
+                                    "${"Member since".tr()} ${product.userCreatedAt ?? 'N/A'}",
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.grey.shade600,
@@ -1069,7 +1070,7 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    "${product.activeAds} active ads",
+                                    "${product.activeAds} ${"active ads".tr()}",
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.grey.shade600,
@@ -1134,8 +1135,8 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                         ),
                       ),
                       icon: const Icon(Icons.flag, size: 16),
-                      label: const Text(
-                        "Report this Ad",
+                      label: Text(
+                        "Report this Ad".tr(),
                         style: TextStyle(fontSize: 14),
                       ),
                     ),
@@ -1145,7 +1146,7 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
 
                   // Related Ads
                   ProductSection(
-                    title: "Related Ads",
+                    title: "Related Ads".tr(),
                     onViewAll: () {},
                     isShowViewAll: false,
                     products: items,
@@ -1181,8 +1182,8 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Text(
-                              "Safety First!",
+                            Text(
+                              "Safety First!".tr(),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
@@ -1192,15 +1193,15 @@ ${product?.price != null ? '🔥 Discounted: \$${product!.price}' : ''}
                           ],
                         ),
                         const SizedBox(height: 12),
-                        _buildSafetyTip("Meet in public, crowded places"),
+                        _buildSafetyTip("Meet in public, crowded places".tr()),
                         _buildSafetyTip(
-                          "Never go alone - take someone with you",
+                          "Never go alone - take someone with you".tr(),
                         ),
                         _buildSafetyTip(
-                          "Inspect the product thoroughly before buying",
+                          "Inspect the product thoroughly before buying".tr(),
                         ),
                         _buildSafetyTip(
-                          "Never pay in advance or transfer money",
+                          "Never pay in advance or transfer money".tr(),
                         ),
                       ],
                     ),
@@ -1309,8 +1310,8 @@ class _BottomButtonsState extends State<BottomButtons> {
       context: context,
       builder: (context) => OrderConfirmationDialog(
         productPrice: widget.productPrice,
-        productTitle:
-            "Product Title", // You'll need to pass the actual product title
+        productTitle: "Product Title"
+            .tr(), // You'll need to pass the actual product title
         onOrderConfirm: (data) {
           // This will be called when the user confirms the order
           _processOrder(data);
@@ -1322,7 +1323,7 @@ class _BottomButtonsState extends State<BottomButtons> {
       // Order was confirmed, show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Order placed successfully!'),
+          content: Text('Order placed successfully!'.tr()),
           backgroundColor: Colors.green.shade600,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -1360,11 +1361,11 @@ class _BottomButtonsState extends State<BottomButtons> {
           MaterialPageRoute(builder: (context) => MyOrdersPage()),
         );
       } else {
-        _showErrorSnackBar('Failed to create order');
+        _showErrorSnackBar('Failed to create order'.tr());
       }
     } catch (e) {
       print(e);
-      _showErrorSnackBar('Error creating order');
+      _showErrorSnackBar('Error creating order'.tr());
     } finally {
       if (mounted) setState(() => _isOrderLoading = false);
     }
@@ -1401,11 +1402,11 @@ class _BottomButtonsState extends State<BottomButtons> {
         );
       } else {
         print('Failed to create chat session: ${response.body}');
-        _showErrorSnackBar('Failed to start chat');
+        _showErrorSnackBar('Failed to start chat'.tr());
       }
     } catch (e) {
       print('Error creating chat session: $e');
-      _showErrorSnackBar('Error starting chat');
+      _showErrorSnackBar('Error starting chat'.tr());
     } finally {
       if (mounted) setState(() => _isChatLoading = false);
     }
@@ -1505,7 +1506,7 @@ class _BottomButtonsState extends State<BottomButtons> {
             Expanded(
               child: _buildActionButton(
                 icon: Icons.chat_bubble_outline_rounded,
-                text: "Chat",
+                text: "Chat".tr(),
                 isLoading: _isChatLoading,
                 isPrimary: true,
                 onPressed: _onChatSubmit,
@@ -1518,7 +1519,7 @@ class _BottomButtonsState extends State<BottomButtons> {
             Expanded(
               child: _buildActionButton(
                 icon: Icons.shopping_bag_outlined,
-                text: "Order Now",
+                text: "Order Now".tr(),
                 isLoading: _isOrderLoading,
                 isPrimary: false,
                 onPressed: _onOrderSubmit,
@@ -1671,7 +1672,7 @@ class _BottomButtonsState extends State<BottomButtons> {
                             ),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(
                               Icons.phone_rounded,
@@ -1680,7 +1681,7 @@ class _BottomButtonsState extends State<BottomButtons> {
                             ),
                             SizedBox(width: 12),
                             Text(
-                              "Contact Seller",
+                              "Contact Seller".tr(),
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
@@ -1694,8 +1695,8 @@ class _BottomButtonsState extends State<BottomButtons> {
                       // Options
                       _buildCallOption(
                         icon: Icons.phone_rounded,
-                        title: "Voice Call",
-                        subtitle: "Call the seller directly",
+                        title: "Voice Call".tr(),
+                        subtitle: "Call the seller directly".tr(),
                         color: Colors.blue,
                         onTap: () {
                           Navigator.pop(context);
@@ -1705,8 +1706,8 @@ class _BottomButtonsState extends State<BottomButtons> {
 
                       _buildCallOption(
                         icon: Icons.message_rounded,
-                        title: "Send Message",
-                        subtitle: "Send SMS to seller",
+                        title: "Send Message".tr(),
+                        subtitle: "Send SMS to seller".tr(),
                         color: Colors.green,
                         onTap: () {
                           Navigator.pop(context);
@@ -1716,8 +1717,8 @@ class _BottomButtonsState extends State<BottomButtons> {
 
                       _buildCallOption(
                         icon: Icons.videocam_rounded,
-                        title: "Video Call",
-                        subtitle: "Start video conversation",
+                        title: "Video Call".tr(),
+                        subtitle: "Start video conversation".tr(),
                         color: Colors.purple,
                         onTap: () {
                           Navigator.pop(context);
@@ -1740,8 +1741,8 @@ class _BottomButtonsState extends State<BottomButtons> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
-                            child: const Text(
-                              "Cancel",
+                            child: Text(
+                              "Cancel".tr(),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

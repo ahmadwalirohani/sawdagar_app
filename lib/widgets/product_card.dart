@@ -1,8 +1,8 @@
 import 'package:afghan_bazar/blocs/trending_ads_bloc.dart';
 import 'package:afghan_bazar/pages/login_page.dart';
-import 'package:afghan_bazar/services/auth_service.dart';
 import 'package:afghan_bazar/widgets/no_ads_found.dart';
 import 'package:afghan_bazar/widgets/product_details.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:afghan_bazar/models/product_ads_model.dart';
 import 'package:intl/intl.dart';
@@ -89,8 +89,8 @@ class ProductCard extends StatelessWidget {
                             color: const Color(0xFFF8D24A),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text(
-                            'Featured',
+                          child: Text(
+                            'Featured'.tr(),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -158,7 +158,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      product.location ?? 'Location not provided',
+                      product.location ?? 'Location not provided'.tr(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -168,7 +168,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Condition: ${product.condition}',
+                      '${'Condition'.tr()}: ${product.condition}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -177,7 +177,7 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     if (createdDate.isNotEmpty)
                       Text(
-                        "Posted on $createdDate", // 👈 created date
+                        "${'Posted on'.tr()} $createdDate", // 👈 created date
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade500,
@@ -240,7 +240,7 @@ class ProductSection extends StatelessWidget {
         ),
         // Horizontal Cards
         products.isEmpty
-            ? const NoAdsFound(message: "No ads found in this category")
+            ? NoAdsFound(message: "No ads found in this category".tr())
             : SizedBox(
                 height: 300,
                 child: ListView.separated(

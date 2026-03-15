@@ -1,4 +1,5 @@
 import 'package:afghan_bazar/pages/home.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class ReportAdDialog extends StatefulWidget {
@@ -16,22 +17,22 @@ class _ReportAdDialogState extends State<ReportAdDialog> {
   bool _isLoading = false;
 
   final List<String> _reasons = [
-    'Offensive content',
-    'Fraud',
-    'Duplicate ad',
-    'Product already sold',
-    'Wrong category',
-    'Product unavailable',
-    'Fake product',
-    'Indecent',
-    'Other',
+    'Offensive content'.tr(),
+    'Fraud'.tr(),
+    'Duplicate ad'.tr(),
+    'Product already sold'.tr(),
+    'Wrong category'.tr(),
+    'Product unavailable'.tr(),
+    'Fake product'.tr(),
+    'Indecent'.tr(),
+    'Other'.tr(),
   ];
 
   void _handleSubmit() async {
     if (_selectedReason == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Please select a reason')));
+      ).showSnackBar(SnackBar(content: Text('Please select a reason'.tr())));
       return;
     }
 
@@ -51,7 +52,7 @@ class _ReportAdDialogState extends State<ReportAdDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Submission failed. Please try again.',
+            'Submission failed. Please try again.'.tr(),
             style: TextStyle(
               color: Colors.white,
             ), // Change text color to white for contrast
@@ -87,7 +88,7 @@ class _ReportAdDialogState extends State<ReportAdDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Report this Ad',
+              'Report this Ad'.tr(),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
@@ -113,7 +114,7 @@ class _ReportAdDialogState extends State<ReportAdDialog> {
               maxLines: 3,
               enabled: !_isLoading,
               decoration: InputDecoration(
-                hintText: 'Enter details (optional)',
+                hintText: 'Enter details (optional)'.tr(),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -140,7 +141,7 @@ class _ReportAdDialogState extends State<ReportAdDialog> {
                         ),
                       )
                     : Text(
-                        'Submit Complain',
+                        'Submit Complain'.tr(),
                         style: TextStyle(color: Colors.white),
                       ),
               ),
